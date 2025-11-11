@@ -1,8 +1,22 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+import { type ApplicationOptions } from '#/application'
 
 export default class Application {
-  constructor(options) {
+  // canvas
+  private canvas: HTMLCanvasElement
+  // renderer
+  private renderer: THREE.WebGLRenderer
+  // scene
+  private scene: THREE.Scene
+  // camera
+  private camera: THREE.PerspectiveCamera
+  // fillLight
+  private fillLight: THREE.HemisphereLight
+  // directionalLight
+  private directionalLight: THREE.DirectionalLight
+
+  constructor(options: ApplicationOptions) {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffffff);
     this.scene.fog = new THREE.Fog(0x88ccee, 0, 50);
@@ -25,6 +39,8 @@ export default class Application {
     const loader = new GLTFLoader().setPath('/public/gltf/map/');
     loader.load('map.gltf', (gltf) => {
       this.scene.add(gltf.scene);
+      gltf.scene.position.set(-4, -13, 1);
+      // gltf.scene.scale.set(0.1, 0.1, 0.1);
       this.renderer.render(this.scene, this.camera);
     });
 
