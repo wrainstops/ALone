@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import type {
   PerspectiveCameraParameterT,
   PositionT,
@@ -43,5 +44,24 @@ export const DirectionalLight: DirectionalLightT = {
 export const DirectionalLightPosition: PositionT = {
   x: -2,
   y: 5,
-  z: -3
-}
+  z: -3,
+};
+
+export const settings = {
+  show_skeleton: false,
+  fixe_transition: true,
+};
+
+export const controls = {
+  key: [0, 0],
+  ease: new THREE.Vector3(),
+  position: new THREE.Vector3(),
+  up: new THREE.Vector3(0, 1, 0),
+  rotate: new THREE.Quaternion(),
+  current: "Idle",
+  fadeDuration: 0.5,
+  runVelocity: 5,
+  walkVelocity: 1.8,
+  rotateSpeed: 0.05,
+  floorDecale: 0,
+};
