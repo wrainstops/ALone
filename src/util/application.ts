@@ -1,54 +1,98 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
-import { type ApplicationOptions } from '#/application';
+import * as THREE from "three";
+import {
+  PerspectiveCamera,
+  PerspectiveCameraPosition,
+  SceneBackgroundColor,
+  Fog,
+  DirectionalLight,
+  DirectionalLightPosition,
+} from "@/constant/application";
+import CustomOrbitControls from "@/util/orbit";
+import type { ApplicationOptions } from "#/application";
 
 export default class Application {
   // canvas
-  private canvas: HTMLCanvasElement
-  // renderer
-  private renderer: THREE.WebGLRenderer
-  // scene
-  private scene: THREE.Scene
+  private canvas: HTMLCanvasElement;
+
   // camera
-  private camera: THREE.PerspectiveCamera
-  // fillLight
-  private fillLight: THREE.HemisphereLight
+  private camera: THREE.PerspectiveCamera;
+
+  // clock
+  private clock: THREE.Clock;
+
+  // scene
+  private scene: THREE.Scene;
+
+  // group
+  private group: THREE.Group;
+
+  // followGroup
+  private followGroup: THREE.Group;
+
   // directionalLight
-  private directionalLight: THREE.DirectionalLight
+  private directionalLight: THREE.DirectionalLight;
+
+  // renderer
+  private renderer: THREE.WebGLRenderer;
+
+  // orbitControls
+  private orbitControls: CustomOrbitControls;
 
   constructor(options: ApplicationOptions) {
-    this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xffffff);
-    this.scene.fog = new THREE.Fog(0x88ccee, 0, 50);
-
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-    this.fillLight = new THREE.HemisphereLight(0x8dc1de, 0x00668d, 1.5);
-    this.fillLight.position.set(2, 1, 1);
-    this.scene.add(this.fillLight);
-
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
-    this.directionalLight.castShadow = true;
-    this.scene.add(this.directionalLight);
-
     this.canvas = options.canvas;
 
-    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true });
+    // camera
+    const { fov, near, far } = PerspectiveCamera;
+    const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
+    this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    const { x = 0, y = 0, z = 0 } = PerspectiveCameraPosition;
+    this.camera.position.set(x, y, z);
+
+    // clock
+    this.clock = new THREE.Clock();
+
+    // scene
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(SceneBackgroundColor);
+    this.scene.fog = new THREE.Fog(Fog.color, Fog.near, Fog.far);
+
+    // group
+    this.group = new THREE.Group();
+    this.scene.add(this.group);
+
+    // followGroup
+    this.followGroup = new THREE.Group();
+    this.group.add(this.followGroup);
+
+    // directionalLight
+    this.directionalLight = new THREE.DirectionalLight(
+      DirectionalLight.color,
+      DirectionalLight.intensity
+    );
+    const { x: dlx = 0, y: dly = 0, z: dlz = 0 } = DirectionalLightPosition;
+    this.directionalLight.position.set(dlx, dly, dlz);
+    this.directionalLight.castShadow = true;
+    this.directionalLight.shadow.mapSize.set(
+      DirectionalLight.shadowMapSizeX,
+      DirectionalLight.shadowMapSizeY
+    );
+    this.followGroup.add(this.directionalLight);
+    this.followGroup.add(this.directionalLight.target);
+
+    // renderer
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      antialias: true,
+    });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    // this.renderer.setAnimationLoop(this.animate.bind(this));
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 0.5;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.render(this.scene, this.camera);
 
-    const loader = new GLTFLoader().setPath('/public/gltf/map/');
-    loader.load('map.gltf', (gltf) => {
-      this.scene.add(gltf.scene);
-      gltf.scene.position.set(-4, -13, 1);
-      // gltf.scene.scale.set(0.1, 0.1, 0.1);
-      this.renderer.render(this.scene, this.camera);
-    });
-
-    document.body.addEventListener('mousemove', (event) => {
-      if (document.pointerLockElement === document.body) {
-        this.camera.rotation.y -= event.movementX / 500;
-        this.camera.rotation.x -= event.movementY / 500;
-      }
-    });
+    this.orbitControls = new CustomOrbitControls(this.camera, this.canvas);
   }
 }
