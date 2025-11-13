@@ -238,7 +238,17 @@ export default class Application {
 
       // 将ease向量和position向量相加, 得到当前位置
       position.add(ease);
-      this.camera.position.add(ease);
+
+      if (Math.abs(position['x']) > 25 || Math.abs(position['z']) > 25) {
+        if (Math.abs(position['x']) > 25) {
+          position.x = Math.sign(position['x']) * 25;
+        }
+        if (Math.abs(position['z']) > 25) {
+          position.z = Math.sign(position['z']) * 25;
+        }
+      } else {
+        this.camera.position.add(ease);
+      }
 
       // 把position赋值给group.position
       this.group.position.copy(position);
@@ -249,10 +259,10 @@ export default class Application {
       this.followGroup.position.copy(position);
 
       // 超出范围移动floor
-      const dx = position.x - this.floor.position.x;
-      const dz = position.z - this.floor.position.z;
-      if (Math.abs(dx) > controls.floorDecale) this.floor.position.x += dx;
-      if (Math.abs(dz) > controls.floorDecale) this.floor.position.z += dz;
+      // const dx = position.x - this.floor.position.x;
+      // const dz = position.z - this.floor.position.z;
+      // if (Math.abs(dx) > controls.floorDecale) this.floor.position.x += dx;
+      // if (Math.abs(dz) > controls.floorDecale) this.floor.position.z += dz;
     }
 
     if (this.character?.mixer) this.character?.mixer.update(delta);
@@ -296,9 +306,8 @@ export default class Application {
       case "KeyD":
         key[1] = 1;
         break;
-      case "ShiftLeft":
-      case "ShiftRight":
-        key[2] = 1;
+      case "KeyF":
+        window.open("https://www.baidu.com", "_blank");
         break;
     }
   }
@@ -321,10 +330,6 @@ export default class Application {
       case "ArrowRight":
       case "KeyD":
         key[1] = key[1] > 0 ? 0 : key[1];
-        break;
-      case "ShiftLeft":
-      case "ShiftRight":
-        key[2] = 0;
         break;
     }
   }

@@ -9,7 +9,7 @@ import type {
 
 // 摄像机参数
 export const PerspectiveCamera: PerspectiveCameraParameterT = {
-  fov: 45,
+  fov: 90,
   aspect: window.innerWidth / window.innerHeight,
   near: 0.1,
   far: 100,
@@ -18,7 +18,7 @@ export const PerspectiveCamera: PerspectiveCameraParameterT = {
 // 摄像机位置
 export const PerspectiveCameraPosition: PositionT = {
   x: 0,
-  y: 2,
+  y: 5,
   z: -5,
 };
 
