@@ -47,21 +47,30 @@ export const DirectionalLightPosition: PositionT = {
   z: -3,
 };
 
-export const settings = {
-  show_skeleton: false,
-  fixe_transition: true,
-};
-
+// 人物控制器配置
 export const controls = {
-  key: [0, 0],
+  // 向量, 运动方向和运动速度
   ease: new THREE.Vector3(),
+  // 向量, 人物位置
   position: new THREE.Vector3(),
+  // 固定向量, 相当于xz面的法向量, 用于旋转人物朝向
   up: new THREE.Vector3(0, 1, 0),
+  // 四元数
   rotate: new THREE.Quaternion(),
-  current: "Idle",
+  // 行动方向[+后退 -前进, +右转 -左转]
+  key: [0, 0],
+  // 当前动作
+  current: "Hiphop2",
+  // 动画渐变的时间
   fadeDuration: 0.5,
+  // 运动速度
+  velocity: 1.8,
+  // run速度
   runVelocity: 5,
+  // walk速度
   walkVelocity: 1.8,
+  // 人物朝向旋转速度
   rotateSpeed: 0.05,
+  // floor边界长度
   floorDecale: 0,
 };
