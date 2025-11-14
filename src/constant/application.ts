@@ -22,12 +22,9 @@ export const PerspectiveCameraPosition: PositionT = {
   z: -5,
 };
 
-// scene背景色
-export const SceneBackgroundColor: ColorT = 0xffffff;
-
 // fog参数
 export const Fog: FogT = {
-  color: 0x88ccee,
+  color: 0x808080,
   near: 0,
   far: 50,
 };

@@ -3,7 +3,6 @@ import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
 import {
   PerspectiveCamera,
   PerspectiveCameraPosition,
-  SceneBackgroundColor,
   Fog,
   DirectionalLight,
   DirectionalLightPosition,
@@ -75,7 +74,6 @@ export default class Application {
 
     // scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(SceneBackgroundColor);
     this.scene.fog = new THREE.Fog(Fog.color, Fog.near, Fog.far);
 
     // group
@@ -129,6 +127,8 @@ export default class Application {
     // 开启阴影配置
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // 背景透明
+    this.renderer.setClearColor(0x000000, 0)
     this.renderer.render(this.scene, this.camera);
 
     // orbitControls
@@ -141,11 +141,12 @@ export default class Application {
     document.addEventListener("mouseup", this.onMouseUp.bind(this));
 
     // hdr环境贴图
-    new HDRLoader().setPath("/hdr/").load("lobe.hdr", (texture) => {
+    new HDRLoader().setPath("/hdr/").load("sky.hdr", (texture) => {
       // 设置映射模式, 渲染反射效果
       texture.mapping = THREE.EquirectangularReflectionMapping;
       // 将环境贴图加到场景
       this.scene.environment = texture;
+      this.scene.background = texture;
       // 环境贴图强度
       this.scene.environmentIntensity = 1.5;
 
