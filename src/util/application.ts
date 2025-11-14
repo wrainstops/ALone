@@ -344,6 +344,11 @@ export default class Application {
         key[1] = 1;
         break;
       case "KeyF":
+        // 重置运动状态
+        key[0] = 0;
+        key[1] = 0;
+        // 重置速度
+        Controls.velocity = Controls.walkVelocity;
         window.open("https://www.baidu.com", "_blank");
         break;
     }
