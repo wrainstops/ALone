@@ -2,7 +2,6 @@ import * as THREE from "three";
 import type {
   PerspectiveCameraParameterT,
   PositionT,
-  ColorT,
   DirectionalLightT,
   FogT,
 } from "#/application";
