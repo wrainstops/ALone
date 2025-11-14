@@ -6,7 +6,8 @@ import {
   Fog,
   DirectionalLight,
   DirectionalLightPosition,
-  controls,
+  Controls,
+  Floor,
 } from "@/constant/application";
 import Build from "@/util/build";
 import Character from "@/util/character";
@@ -95,7 +96,7 @@ export default class Application {
     );
     const { x: dlx = 0, y: dly = 0, z: dlz = 0 } = DirectionalLightPosition;
     this.directionalLight.position.set(dlx, dly, dlz);
-     // 设置物体投射阴影
+    // 设置物体投射阴影
     this.directionalLight.castShadow = true;
     // 阴影分辨率
     this.directionalLight.shadow.mapSize.set(
@@ -111,10 +112,10 @@ export default class Application {
     // renderer
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-       // 抗锯齿, 提高渲染质量, 但会影响性能
+      // 抗锯齿, 提高渲染质量, 但会影响性能
       antialias: true,
     });
-     // 像素比, 适应高分辨率屏幕
+    // 像素比, 适应高分辨率屏幕
     this.renderer.setPixelRatio(window.devicePixelRatio);
     // 渲染器尺寸, 设置为canvas尺寸
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
@@ -128,7 +129,7 @@ export default class Application {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     // 背景透明
-    this.renderer.setClearColor(0x000000, 0)
+    this.renderer.setClearColor(0x000000, 0);
     this.renderer.render(this.scene, this.camera);
 
     // orbitControls
@@ -162,8 +163,15 @@ export default class Application {
   }
 
   addFloor() {
-    const size = 50;
-    const repeat = 16;
+    const {
+      size,
+      repeat,
+      normalMapScale,
+      meshColor,
+      roughness,
+      widthSegments,
+      heightSegments,
+    } = Floor;
 
     // 获取最大可用各向异性
     const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
@@ -193,17 +201,22 @@ export default class Application {
       // 法线贴图
       normalMap: floorN,
       // 法线贴图的缩放因子, 用于调整法线贴图的强度
-      normalScale: new THREE.Vector2(0.5, 0.5),
+      normalScale: new THREE.Vector2(normalMapScale, normalMapScale),
       // 材质颜色
-      color: 0x404040,
+      color: meshColor,
       // 材质的深度信息不会影响深度缓冲区, 从而不会阻止其他物体渲染
       depthWrite: false,
       // 表面粗糙度
-      roughness: 0.85,
+      roughness: roughness,
     });
 
     // 创建平面几何体, 用作地面的基础, 参数(平面宽度, 平面高度, 沿宽度方向的分割段数, 沿高度方向的分割段数)
-    const g = new THREE.PlaneGeometry(size, size, 50, 50);
+    const g = new THREE.PlaneGeometry(
+      size,
+      size,
+      widthSegments,
+      heightSegments
+    );
     g.rotateX(-Math.PI / 2);
 
     // Mesh将几何体g和材质mat结合, 形成可渲染的三维对象
@@ -222,7 +235,8 @@ export default class Application {
   }
 
   updateCharacter(delta: number) {
-    const { fadeDuration: fade, key, up, ease, rotate, position } = controls;
+    const { fadeDuration: fade, key, up, ease, rotate, position } = Controls;
+    const { size } = Floor;
     // 获取当前水平旋转角度(弧度)
     const azimuth = this.orbitControls.getAzimuthalAngle();
 
@@ -232,10 +246,10 @@ export default class Application {
     const play = active ? "Walk" : "Hiphop2";
 
     // 动画改变 过渡
-    if (controls.current != play) {
+    if (Controls.current != play) {
       const current = this.character.actions![play];
-      const old = this.character.actions![controls.current];
-      controls.current = play;
+      const old = this.character.actions![Controls.current];
+      Controls.current = play;
 
       this.setWeight(current, 1.0);
       old.fadeOut(fade);
@@ -243,9 +257,9 @@ export default class Application {
     }
 
     // 移动
-    if (controls.current === "Walk") {
+    if (Controls.current === "Walk") {
       // 速度
-      const velocity = controls.velocity;
+      const velocity = Controls.velocity;
 
       // 方向
       ease.set(key[1], 0, key[0]).multiplyScalar(velocity * delta);
@@ -266,7 +280,11 @@ export default class Application {
       const isIntersecting = this.raycaster.intersectObject(this.build.build1);
 
       // 碰撞检测, 超出边界, 回到旧位置
-      if (isIntersecting.length > 0 || Math.abs(position['x']) > 25 || Math.abs(position['z']) > 25) {
+      if (
+        isIntersecting.length > 0 ||
+        Math.abs(position["x"]) > size / 2 ||
+        Math.abs(position["z"]) > size / 2
+      ) {
         position.copy(this.oldPosition);
       } else {
         this.camera.position.add(ease);
@@ -275,7 +293,7 @@ export default class Application {
       // 把position赋值给group.position
       this.group.position.copy(position);
       // 旋转, 使人物朝向行走方向
-      this.group.quaternion.rotateTowards(rotate, controls.rotateSpeed);
+      this.group.quaternion.rotateTowards(rotate, Controls.rotateSpeed);
 
       this.orbitControls.target.copy(position).add({ x: 0, y: 1, z: 0 });
       this.followGroup.position.copy(position);
@@ -307,7 +325,7 @@ export default class Application {
   }
 
   onKeyDown(e: KeyboardEvent) {
-    const key = controls.key;
+    const key = Controls.key;
     switch (e.code) {
       case "ArrowUp":
       case "KeyW":
@@ -332,7 +350,7 @@ export default class Application {
   }
 
   onKeyUp(e: KeyboardEvent) {
-    const key = controls.key;
+    const key = Controls.key;
     switch (e.code) {
       case "ArrowUp":
       case "KeyW":
@@ -354,7 +372,7 @@ export default class Application {
   }
 
   onMouseDown(e: MouseEvent) {
-    switch(e.button) {
+    switch (e.button) {
       // 左键
       case 0:
         break;
@@ -363,13 +381,13 @@ export default class Application {
         break;
       // 右键
       case 2:
-        controls.velocity = controls.runVelocity;
+        Controls.velocity = Controls.runVelocity;
         break;
     }
   }
 
   onMouseUp(e: MouseEvent) {
-    switch(e.button) {
+    switch (e.button) {
       // 左键
       case 0:
         break;
@@ -378,7 +396,7 @@ export default class Application {
         break;
       // 右键
       case 2:
-        controls.velocity = controls.walkVelocity;
+        Controls.velocity = Controls.walkVelocity;
         break;
     }
   }

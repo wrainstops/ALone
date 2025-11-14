@@ -44,7 +44,7 @@ export const DirectionalLightPosition: PositionT = {
 };
 
 // 人物控制器配置
-export const controls = {
+export const Controls = {
   // 向量, 运动方向和运动速度
   ease: new THREE.Vector3(),
   // 向量, 人物位置
@@ -67,4 +67,22 @@ export const controls = {
   walkVelocity: 1.8,
   // 人物朝向旋转速度
   rotateSpeed: 0.05,
+};
+
+// floor参数
+export const Floor = {
+  // 地面边长
+  size: 50,
+  // 一片floor重复次数
+  repeat: 16,
+  // 法线贴图的缩放因子
+  normalMapScale: 0.5,
+  // 材质颜色
+  meshColor: 0x404040,
+  // 表面粗糙度
+  roughness: 0.85,
+  // 沿宽度方向的分割段数
+  widthSegments: 50,
+  // 沿高度方向的分割段数
+  heightSegments: 50,
 };
