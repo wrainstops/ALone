@@ -11,7 +11,7 @@ export default class Character extends GLTFLoader {
   constructor(group: THREE.Group) {
     super();
 
-    this.load("/walk/character.glb", (glb) => {
+    this.load("/character/character.glb", (glb) => {
       const model = glb.scene;
       group.add(model);
 

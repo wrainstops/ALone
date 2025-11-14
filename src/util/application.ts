@@ -9,6 +9,7 @@ import {
   DirectionalLightPosition,
   controls,
 } from "@/constant/application";
+import Build from "@/util/build";
 import Character from "@/util/character";
 import CustomOrbitControls from "@/util/orbit";
 import type { ApplicationOptions } from "#/application";
@@ -32,6 +33,9 @@ export default class Application {
   // followGroup
   private followGroup: THREE.Group;
 
+  // buildGroup
+  private buildGroup: THREE.Group;
+
   // directionalLight
   private directionalLight: THREE.DirectionalLight;
 
@@ -44,8 +48,17 @@ export default class Application {
   // character
   private character!: Character;
 
+  // build
+  private build!: Build;
+
   // floor
   private floor!: THREE.Mesh;
+
+  // raycaster 光线投射 用于碰撞检测
+  private raycaster: THREE.Raycaster;
+
+  // oldPosition 旧的位置 用户碰撞检测后 恢复位置
+  private oldPosition: THREE.Vector3 = new THREE.Vector3();
 
   constructor(options: ApplicationOptions) {
     this.canvas = options.canvas;
@@ -73,6 +86,10 @@ export default class Application {
     this.followGroup = new THREE.Group();
     this.group.add(this.followGroup);
 
+    // buildGroup
+    this.buildGroup = new THREE.Group();
+    this.scene.add(this.buildGroup);
+
     // directionalLight
     this.directionalLight = new THREE.DirectionalLight(
       DirectionalLight.color,
@@ -89,6 +106,9 @@ export default class Application {
     );
     this.followGroup.add(this.directionalLight);
     this.followGroup.add(this.directionalLight.target);
+
+    // raycaster
+    this.raycaster = new THREE.Raycaster();
 
     // renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -121,7 +141,7 @@ export default class Application {
     document.addEventListener("mouseup", this.onMouseUp.bind(this));
 
     // hdr环境贴图
-    new HDRLoader().setPath("/walk/").load("lobe.hdr", (texture) => {
+    new HDRLoader().setPath("/hdr/").load("lobe.hdr", (texture) => {
       // 设置映射模式, 渲染反射效果
       texture.mapping = THREE.EquirectangularReflectionMapping;
       // 将环境贴图加到场景
@@ -131,6 +151,10 @@ export default class Application {
 
       // character
       this.character = new Character(this.group);
+
+      // build
+      this.build = new Build(this.buildGroup);
+
       this.animate();
       this.addFloor();
     });
@@ -144,7 +168,7 @@ export default class Application {
     const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
 
     // 纹理贴图 漫反射
-    const floorD = new THREE.TextureLoader().load("/walk/floor_diffuse.jpg");
+    const floorD = new THREE.TextureLoader().load("/floor/floor_diffuse.jpg");
     // 颜色空间, 确保颜色正确渲染
     floorD.colorSpace = THREE.SRGBColorSpace;
     floorD.repeat.set(repeat, repeat);
@@ -154,7 +178,7 @@ export default class Application {
     floorD.anisotropy = maxAnisotropy;
 
     // 纹理贴图 法线
-    const floorN = new THREE.TextureLoader().load("/walk/floor_normal.jpg");
+    const floorN = new THREE.TextureLoader().load("/floor/floor_normal.jpg");
     floorN.repeat.set(repeat, repeat);
     // 纹理在水平方向上包裹方式, 纹理在垂直方向上包裹方式, 均设置为重复平铺
     floorN.wrapS = floorN.wrapT = THREE.RepeatWrapping;
@@ -185,9 +209,6 @@ export default class Application {
     this.floor = new THREE.Mesh(g, mat);
     this.floor.receiveShadow = true;
     this.scene.add(this.floor);
-
-    // todo
-    controls.floorDecale = (size / repeat) * 4;
   }
 
   animate() {
@@ -239,13 +260,13 @@ export default class Application {
       // 将ease向量和position向量相加, 得到当前位置
       position.add(ease);
 
-      if (Math.abs(position['x']) > 25 || Math.abs(position['z']) > 25) {
-        if (Math.abs(position['x']) > 25) {
-          position.x = Math.sign(position['x']) * 25;
-        }
-        if (Math.abs(position['z']) > 25) {
-          position.z = Math.sign(position['z']) * 25;
-        }
+      const direction = new THREE.Vector3(0, 1, 0);
+      this.raycaster.set(position, direction);
+      const isIntersecting = this.raycaster.intersectObject(this.build.build1);
+
+      // 碰撞检测, 超出边界, 回到旧位置
+      if (isIntersecting.length > 0 || Math.abs(position['x']) > 25 || Math.abs(position['z']) > 25) {
+        position.copy(this.oldPosition);
       } else {
         this.camera.position.add(ease);
       }
@@ -258,11 +279,8 @@ export default class Application {
       this.orbitControls.target.copy(position).add({ x: 0, y: 1, z: 0 });
       this.followGroup.position.copy(position);
 
-      // 超出范围移动floor
-      // const dx = position.x - this.floor.position.x;
-      // const dz = position.z - this.floor.position.z;
-      // if (Math.abs(dx) > controls.floorDecale) this.floor.position.x += dx;
-      // if (Math.abs(dz) > controls.floorDecale) this.floor.position.z += dz;
+      // 保存旧位置
+      this.oldPosition.copy(position);
     }
 
     if (this.character?.mixer) this.character?.mixer.update(delta);

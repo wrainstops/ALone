@@ -71,6 +71,4 @@ export const controls = {
   walkVelocity: 1.8,
   // 人物朝向旋转速度
   rotateSpeed: 0.05,
-  // floor边界长度
-  floorDecale: 0,
 };
