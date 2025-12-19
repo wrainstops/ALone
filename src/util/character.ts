@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { ModelScale } from '@/constant/application';
 
 export default class Character extends GLTFLoader {
   // mixer
@@ -13,6 +14,8 @@ export default class Character extends GLTFLoader {
 
     this.load("/character/character.glb", (glb) => {
       const model = glb.scene;
+      const { x, y, z } = ModelScale.character;
+      model.scale.set(x, y, z);
       group.add(model);
 
       const animation = glb.animations;

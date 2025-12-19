@@ -34,5 +34,5 @@ export interface DirectionalLightT {
   color: ColorT;
   intensity: number;
   shadowMapSizeX: number; // 阴影贴图大小(分辨率) - 宽度 - 越大越清晰; 但会影响性能
-  shadowMapSizeY: number; // 阴影贴图大小(分辨率) - 高度 - 越打越清晰; 但会影响性能
+  shadowMapSizeY: number; // 阴影贴图大小(分辨率) - 高度 - 越大越清晰; 但会影响性能
 }

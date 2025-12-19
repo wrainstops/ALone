@@ -8,7 +8,7 @@ import type {
 
 // 摄像机参数
 export const PerspectiveCamera: PerspectiveCameraParameterT = {
-  fov: 90,
+  fov: 20,
   aspect: window.innerWidth / window.innerHeight,
   near: 0.1,
   far: 100,
@@ -17,8 +17,8 @@ export const PerspectiveCamera: PerspectiveCameraParameterT = {
 // 摄像机位置
 export const PerspectiveCameraPosition: PositionT = {
   x: 0,
-  y: 5,
-  z: -5,
+  y: 2,
+  z: -7,
 };
 
 // fog参数
@@ -85,4 +85,30 @@ export const Floor = {
   widthSegments: 50,
   // 沿高度方向的分割段数
   heightSegments: 50,
+};
+
+// 模型缩放比例
+export const ModelScale: Record<string, PositionT> = {
+  // 人物
+  character: {
+    x: 0.2,
+    y: 0.2,
+    z: 0.2,
+  },
+  // 建筑1
+  build_1: {
+    x: 5,
+    y: 5,
+    z: 5,
+  },
+};
+
+// 模型位置
+export const ModelPosition: Record<string, PositionT> = {
+  // 建筑1
+  build_1: {
+    x: 0,
+    y: 0,
+    z: -3,
+  }
 };
