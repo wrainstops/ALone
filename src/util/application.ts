@@ -277,18 +277,20 @@ export default class Application {
 
       const direction = new THREE.Vector3(0, 1, 0);
       this.raycaster.set(position, direction);
-      const isIntersecting = this.raycaster.intersectObject(this.build.build1);
 
-      // 碰撞检测, 超出边界, 回到旧位置
-      if (
-        isIntersecting.length > 0 ||
-        Math.abs(position["x"]) > size / 2 ||
-        Math.abs(position["z"]) > size / 2
-      ) {
-        position.copy(this.oldPosition);
-      } else {
-        this.camera.position.add(ease);
-      }
+      this.checkCollision(ease, position, size);
+      // const isIntersecting = this.raycaster.intersectObject(this.build.build1);
+
+      // // 碰撞检测, 超出边界, 回到旧位置
+      // if (
+      //   isIntersecting.length > 0 ||
+      //   Math.abs(position["x"]) > size / 2 ||
+      //   Math.abs(position["z"]) > size / 2
+      // ) {
+      //   position.copy(this.oldPosition);
+      // } else {
+      //   this.camera.position.add(ease);
+      // }
 
       // 把position赋值给group.position
       this.group.position.copy(position);
@@ -305,6 +307,32 @@ export default class Application {
     if (this.character?.mixer) this.character?.mixer.update(delta);
 
     this.orbitControls.update();
+  }
+
+  // 碰撞检测
+  checkCollision(ease: THREE.Vector3, position: THREE.Vector3, size: number) {
+    const isIntersecting1 = this.raycaster.intersectObject(this.build.build1);
+    console.log(isIntersecting1);
+    if (
+      isIntersecting1.length > 0 ||
+      this.checkBoundary(position, size)
+    ) {
+      position.copy(this.oldPosition);
+    } else {
+      this.camera.position.add(ease);
+    }
+  }
+
+  // 墙体判断
+  checkBoundary(position: THREE.Vector3, size: number) {
+    if (
+      Math.abs(position["x"]) > size / 2 ||
+      Math.abs(position["z"]) > size / 2
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   setWeight(action: THREE.AnimationAction, weight: number) {
