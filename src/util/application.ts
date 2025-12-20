@@ -312,13 +312,28 @@ export default class Application {
   // 碰撞检测
   checkCollision(ease: THREE.Vector3, position: THREE.Vector3, size: number) {
     const isIntersecting1 = this.raycaster.intersectObject(this.build.build1);
-    console.log(isIntersecting1);
-    if (
-      isIntersecting1.length > 0 ||
-      this.checkBoundary(position, size)
-    ) {
+    const that = this;
+
+    function up1() {
+      if (isIntersecting1.length) {
+        console.log(isIntersecting1);
+        const { distance } = isIntersecting1[0];
+        if (distance - position.y > 1) {
+          return;
+        // } else if (distance - position.y < 0.2) {
+        //   // 上楼梯
+        //   position.add(new THREE.Vector3(0, distance, 0));
+        } else {
+          position.copy(that.oldPosition);
+        }
+      } else {
+      }
+    }
+
+    if (this.checkBoundary(position, size)) {
       position.copy(this.oldPosition);
     } else {
+      up1();
       this.camera.position.add(ease);
     }
   }
