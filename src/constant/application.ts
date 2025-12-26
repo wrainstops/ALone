@@ -108,7 +108,7 @@ export const ModelPosition: Record<string, PositionT> = {
   // 建筑1
   build_1: {
     x: 0,
-    y: 0,
+    y: -1,
     z: -3,
   }
 };

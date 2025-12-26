@@ -16,6 +16,9 @@ export default class Character extends GLTFLoader {
       const model = glb.scene;
       const { x, y, z } = ModelScale.character;
       model.scale.set(x, y, z);
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      console.log('size', size); // 人物尺寸
       group.add(model);
 
       const animation = glb.animations;
