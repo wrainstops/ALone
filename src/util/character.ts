@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { Capsule } from "three/addons/math/Capsule.js";
 import { ModelScale } from '@/constant/application';
 
 export default class Character extends GLTFLoader {
@@ -9,22 +10,29 @@ export default class Character extends GLTFLoader {
   // actions
   actions: Record<string, THREE.AnimationAction> | undefined;
 
+  // chCapsule
+  chCapsule: Capsule | undefined;
+
   constructor(group: THREE.Group) {
     super();
 
-    this.load("/character/character.glb", (glb) => {
-      const model = glb.scene;
+    this.load("/character/character.glb", (model) => {
+      const ch = model.scene;
       const { x, y, z } = ModelScale.character;
-      model.scale.set(x, y, z);
-      const box = new THREE.Box3().setFromObject(model);
-      const size = box.getSize(new THREE.Vector3());
-      console.log('size', size); // 人物尺寸
-      group.add(model);
+      ch.scale.set(x, y, z);
+      const chbox = new THREE.Box3().setFromObject(ch);
+      const chsize = chbox.getSize(new THREE.Vector3());
+      const chR = Math.sqrt(Math.pow(chsize.x, 2) + Math.pow(chsize.z, 2)); // 人物半径
+      const chH = chsize.y; // 人物高度
+      const start = new THREE.Vector3(0, chR, 0);
+      const end = new THREE.Vector3(0, chH - chR, 0);
+      this.chCapsule = new Capsule(start, end, chR); // 人物胶囊几何
+      group.add(ch);
 
-      const animation = glb.animations;
+      const animation = model.animations;
 
       // 动画混合器, 场景中有多个对象需要独立动画时, 可以为每个对象创建一个独立的动画混合器
-      this.mixer = new THREE.AnimationMixer(model);
+      this.mixer = new THREE.AnimationMixer(ch);
       this.actions = {
         Walk: this.mixer.clipAction(animation[0]),
         Run: this.mixer.clipAction(animation[1]),

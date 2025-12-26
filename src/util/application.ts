@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
+import { Octree } from "three/addons/math/Octree.js";
 import {
   PerspectiveCamera,
   PerspectiveCameraPosition,
@@ -48,14 +49,11 @@ export default class Application {
   // character
   private character!: Character;
 
-  // build
-  private build!: Build;
-
   // floor
   private floor!: THREE.Mesh;
 
-  // raycaster 光线投射 用于碰撞检测
-  private raycaster: THREE.Raycaster;
+  // worldOctree 八叉树
+  private worldOctree: Octree;
 
   // oldPosition 旧的位置 用户碰撞检测后 恢复位置
   private oldPosition: THREE.Vector3 = new THREE.Vector3();
@@ -106,8 +104,8 @@ export default class Application {
     this.followGroup.add(this.directionalLight);
     this.followGroup.add(this.directionalLight.target);
 
-    // raycaster
-    this.raycaster = new THREE.Raycaster();
+    // worldOctree
+    this.worldOctree = new Octree();
 
     // renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -155,7 +153,7 @@ export default class Application {
       this.character = new Character(this.group);
 
       // build
-      this.build = new Build(this.buildGroup);
+      new Build(this.buildGroup, this.worldOctree);
 
       this.animate();
       this.addFloor();
@@ -275,9 +273,7 @@ export default class Application {
       // 将ease向量和position向量相加, 得到当前位置
       position.add(ease);
 
-      const direction = new THREE.Vector3(0, 1, 0);
-      this.raycaster.set(position, direction);
-
+      // 碰撞检测
       this.checkCollision(ease, position, size);
 
       // 把position赋值给group.position
@@ -299,44 +295,19 @@ export default class Application {
 
   // 碰撞检测
   checkCollision(ease: THREE.Vector3, position: THREE.Vector3, size: number) {
-    const isIntersecting1 = this.raycaster.intersectObject(this.build.build1);
-    // const that = this;
+    this.character.chCapsule?.translate(ease);
+    const res = this.worldOctree.capsuleIntersect(this.character.chCapsule!);
+    console.log('res', res);
 
-    // function up1() {
-    //   if (isIntersecting1.length) {
-    //     console.log(isIntersecting1);
-    //     const { distance } = isIntersecting1[0];
-    //     if (distance - position.y > 1) {
-    //       return;  
-    //     } else if (distance - position.y < 0.2) {
-    //       // 上楼梯
-    //       position.add(new THREE.Vector3(0, distance, 0));
-    //     } else {
-    //       position.copy(that.oldPosition);
-    //     }
-    //   } else {
-    //   }
-    // }
-
-    if (this.checkBoundary(position, size, isIntersecting1)) {
-      position.copy(this.oldPosition);
-    } else {
-      // up1();
-      this.camera.position.add(ease);
-    }
-  }
-
-  // 墙体判断
-  checkBoundary(position: THREE.Vector3, size: number, ...isIntersectings: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>[][]) {
-    console.log(isIntersectings);
     if (
-      isIntersectings.some((i) => i.length && i[0].distance < 0.13 + position.y) ||
+      res ||
       Math.abs(position["x"]) > size / 2 ||
       Math.abs(position["z"]) > size / 2
     ) {
-      return true;
+      position.copy(this.oldPosition);
+      this.character.chCapsule?.translate(ease.negate());
     } else {
-      return false;
+      this.camera.position.add(ease);
     }
   }
 
@@ -439,3 +410,4 @@ export default class Application {
     }
   }
 }
+

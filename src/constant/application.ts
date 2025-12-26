@@ -112,3 +112,9 @@ export const ModelPosition: Record<string, PositionT> = {
     z: -3,
   }
 };
+
+// 开关配置
+export const GlobalSwitch: Record<string, boolean> = {
+  // octreeHelper
+  openOctreeHelper: false,
+};
