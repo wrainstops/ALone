@@ -8,24 +8,24 @@ import type {
 
 // 摄像机参数
 export const PerspectiveCamera: PerspectiveCameraParameterT = {
-  fov: 20,
+  fov: 40,
   aspect: window.innerWidth / window.innerHeight,
   near: 0.1,
-  far: 100,
+  far: 300,
 };
 
 // 摄像机位置
 export const PerspectiveCameraPosition: PositionT = {
   x: 0,
-  y: 2,
-  z: -7,
+  y: 3,
+  z: -10,
 };
 
 // fog参数
 export const Fog: FogT = {
   color: 0x808080,
   near: 0,
-  far: 50,
+  far: 500,
 };
 
 // 方向光参数
@@ -56,15 +56,15 @@ export const Controls = {
   // 行动方向[+后退 -前进, +右转 -左转]
   key: [0, 0],
   // 当前动作
-  current: "Hiphop2",
+  current: "Idle",
   // 动画渐变的时间
   fadeDuration: 0.5,
   // 运动速度
-  velocity: 1.8,
+  velocity: 5,
   // run速度
-  runVelocity: 5,
+  runVelocity: 20,
   // walk速度
-  walkVelocity: 1.8,
+  walkVelocity: 5,
   // 人物朝向旋转速度
   rotateSpeed: 0.05,
 };
@@ -72,7 +72,7 @@ export const Controls = {
 // floor参数
 export const Floor = {
   // 地面边长
-  size: 50,
+  size: 5000,
   // 一片floor重复次数
   repeat: 16,
   // 法线贴图的缩放因子
@@ -91,15 +91,15 @@ export const Floor = {
 export const ModelScale: Record<string, PositionT> = {
   // 人物
   character: {
-    x: 0.2,
-    y: 0.2,
-    z: 0.2,
+    x: 0.9,
+    y: 0.9,
+    z: 0.9,
   },
   // 建筑1
   build_1: {
-    x: 5,
-    y: 5,
-    z: 5,
+    x: 50,
+    y: 50,
+    z: 50,
   },
 };
 
@@ -108,8 +108,8 @@ export const ModelPosition: Record<string, PositionT> = {
   // 建筑1
   build_1: {
     x: 0,
-    y: -1,
-    z: -3,
+    y: -10,
+    z: 0,
   }
 };
 

@@ -16,13 +16,22 @@ export default class Character extends GLTFLoader {
   constructor(group: THREE.Group) {
     super();
 
-    this.load("/character/character.glb", (model) => {
+    this.load("/character/fly_girl.glb", (model) => {
       const ch = model.scene;
+      ch.traverse(function (child) {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          if (mesh.material) {
+            // 启用深度写入 以修复透明穿模问题
+            (mesh.material as THREE.MeshStandardMaterial).depthWrite = true;
+          }
+        }
+      });
       const { x, y, z } = ModelScale.character;
       ch.scale.set(x, y, z);
       const chbox = new THREE.Box3().setFromObject(ch);
       const chsize = chbox.getSize(new THREE.Vector3());
-      const chR = Math.sqrt(Math.pow(chsize.x, 2) + Math.pow(chsize.z, 2)); // 人物半径
+      const chR = Math.sqrt(Math.pow(chsize.x / 2, 2) + Math.pow(chsize.z / 2, 2)); // 人物半径
       const chH = chsize.y; // 人物高度
       const start = new THREE.Vector3(0, chR, 0);
       const end = new THREE.Vector3(0, chH - chR, 0);
@@ -34,13 +43,9 @@ export default class Character extends GLTFLoader {
       // 动画混合器, 场景中有多个对象需要独立动画时, 可以为每个对象创建一个独立的动画混合器
       this.mixer = new THREE.AnimationMixer(ch);
       this.actions = {
-        Walk: this.mixer.clipAction(animation[0]),
+        Walk: this.mixer.clipAction(animation[1]),
         Run: this.mixer.clipAction(animation[1]),
-        Rap: this.mixer.clipAction(animation[3]),
-        Hiphop: this.mixer.clipAction(animation[4]),
-        Fight: this.mixer.clipAction(animation[7]),
-        Talking: this.mixer.clipAction(animation[8]),
-        Hiphop2: this.mixer.clipAction(animation[9]),
+        Idle: this.mixer.clipAction(animation[1])
       };
 
       for (const m in this.actions) {
@@ -48,10 +53,10 @@ export default class Character extends GLTFLoader {
         // 动画时间比例, 默认1, 通俗的说就是倍速
         this.actions[m].setEffectiveTimeScale(1);
         // 动画权重值, 默认1. 如果要将一个动画动作完全占用, 则应将所有其他动画动作的有效权重置为0
-        if (m !== "Hiphop2") this.actions[m].setEffectiveWeight(0);
+        if (m !== "Idle") this.actions[m].setEffectiveWeight(0);
       }
 
-      this.actions.Hiphop2.play();
+      this.actions.Idle.play();
     });
   }
 }

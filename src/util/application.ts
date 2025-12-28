@@ -241,7 +241,7 @@ export default class Application {
     // 运动标记
     const active = key[0] === 0 && key[1] === 0 ? false : true;
     // 动画类型
-    const play = active ? "Walk" : "Hiphop2";
+    const play = active ? "Walk" : "Idle";
 
     // 动画改变 过渡
     if (Controls.current != play) {
@@ -300,13 +300,17 @@ export default class Application {
     console.log('res', res);
 
     if (
-      res ||
+      (res && res.depth > 0.1) ||
       Math.abs(position["x"]) > size / 2 ||
       Math.abs(position["z"]) > size / 2
     ) {
       position.copy(this.oldPosition);
       this.character.chCapsule?.translate(ease.negate());
     } else {
+      if (res && res.depth) {
+        ease.y += res.depth;
+        position.y += res.depth;
+      }
       this.camera.position.add(ease);
     }
   }
