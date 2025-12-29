@@ -10,6 +10,7 @@ import {
   Controls,
   Floor,
 } from "@/constant/application";
+import BillBoards from "@/util/billBoards";
 import Build from "@/util/build";
 import Character from "@/util/character";
 import CustomOrbitControls from "@/util/orbit";
@@ -58,7 +59,7 @@ export default class Application {
   // oldPosition 旧的位置 用户碰撞检测后 恢复位置
   private oldPosition: THREE.Vector3 = new THREE.Vector3();
 
-  // 是否在地面上
+  // isPlayerOnFloor 是否在地面上
   private isPlayerOnFloor: boolean = false;
 
   constructor(options: ApplicationOptions) {
@@ -157,6 +158,9 @@ export default class Application {
 
       // build
       new Build(this.buildGroup, this.worldOctree);
+
+      // billBoards
+      new BillBoards(this.buildGroup, 200, 32, "hello world");
 
       this.animate();
       this.addFloor();
