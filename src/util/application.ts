@@ -58,6 +58,9 @@ export default class Application {
   // oldPosition 旧的位置 用户碰撞检测后 恢复位置
   private oldPosition: THREE.Vector3 = new THREE.Vector3();
 
+  // 是否在地面上
+  private isPlayerOnFloor: boolean = false;
+
   constructor(options: ApplicationOptions) {
     this.canvas = options.canvas;
 
@@ -235,6 +238,13 @@ export default class Application {
   updateCharacter(delta: number) {
     const { fadeDuration: fade, key, up, ease, rotate, position } = Controls;
     const { size } = Floor;
+
+    // 不在地面上 自由落体
+    if (!this.isPlayerOnFloor && position.y > 0) {
+      position.y -= delta;
+      this.camera.position.y -= delta;
+    }
+
     // 获取当前水平旋转角度(弧度)
     const azimuth = this.orbitControls.getAzimuthalAngle();
 
@@ -244,7 +254,7 @@ export default class Application {
     const play = active ? "Walk" : "Idle";
 
     // 动画改变 过渡
-    if (Controls.current != play) {
+    if (Controls.current !== play) {
       const current = this.character.actions![play];
       const old = this.character.actions![Controls.current];
       Controls.current = play;
@@ -276,17 +286,17 @@ export default class Application {
       // 碰撞检测
       this.checkCollision(ease, position, size);
 
-      // 把position赋值给group.position
-      this.group.position.copy(position);
       // 旋转, 使人物朝向行走方向
       this.group.quaternion.rotateTowards(rotate, Controls.rotateSpeed);
 
       this.orbitControls.target.copy(position).add({ x: 0, y: 1, z: 0 });
-      this.followGroup.position.copy(position);
 
       // 保存旧位置
       this.oldPosition.copy(position);
     }
+    // 把position赋值给group.position
+    this.group.position.copy(position);
+    this.followGroup.position.copy(position);
 
     if (this.character?.mixer) this.character?.mixer.update(delta);
 
@@ -295,22 +305,32 @@ export default class Application {
 
   // 碰撞检测
   checkCollision(ease: THREE.Vector3, position: THREE.Vector3, size: number) {
-    this.character.chCapsule?.translate(ease);
-    const res = this.worldOctree.capsuleIntersect(this.character.chCapsule!);
-    console.log('res', res);
-
+    // 边界
     if (
-      (res && res.depth > 0.1) ||
       Math.abs(position["x"]) > size / 2 ||
       Math.abs(position["z"]) > size / 2
     ) {
       position.copy(this.oldPosition);
-      this.character.chCapsule?.translate(ease.negate());
-    } else {
-      if (res && res.depth) {
-        ease.y += res.depth;
+      return;
+    }
+
+    // 胶囊体碰撞
+    this.character.chCapsule?.translate(ease);
+    const res = this.worldOctree.capsuleIntersect(this.character.chCapsule!);
+    console.log("res", res);
+    this.isPlayerOnFloor = false;
+
+    if (res) {
+      this.isPlayerOnFloor = res.normal.y > 0;
+      if (res.depth > 0.1) {
+        position.copy(this.oldPosition);
+        this.character.chCapsule?.translate(ease.negate());
+      } else {
         position.y += res.depth;
+        ease.y += res.depth;
+        this.camera.position.add(ease);
       }
+    } else {
       this.camera.position.add(ease);
     }
   }
@@ -334,6 +354,7 @@ export default class Application {
 
   onKeyDown(e: KeyboardEvent) {
     const key = Controls.key;
+    const { position } = Controls;
     switch (e.code) {
       case "ArrowUp":
       case "KeyW":
@@ -351,7 +372,17 @@ export default class Application {
       case "KeyD":
         key[1] = 1;
         break;
+      case "Space":
+        if (this.isPlayerOnFloor || position.y <= 0) {
+          position.y += 3;
+          this.camera.position.y += 3;
+        }
+        break;
       case "KeyF":
+        // 不在地面上无法点击F
+        if (!this.isPlayerOnFloor && position.y > 0) {
+          return;
+        }
         // 重置运动状态
         key[0] = 0;
         key[1] = 0;
@@ -414,4 +445,3 @@ export default class Application {
     }
   }
 }
-

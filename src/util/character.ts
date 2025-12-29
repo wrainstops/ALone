@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Capsule } from "three/addons/math/Capsule.js";
-import { ModelScale } from '@/constant/application';
+import { ModelScale } from "@/constant/application";
 
 export default class Character extends GLTFLoader {
   // mixer
@@ -31,7 +31,9 @@ export default class Character extends GLTFLoader {
       ch.scale.set(x, y, z);
       const chbox = new THREE.Box3().setFromObject(ch);
       const chsize = chbox.getSize(new THREE.Vector3());
-      const chR = Math.sqrt(Math.pow(chsize.x / 2, 2) + Math.pow(chsize.z / 2, 2)); // 人物半径
+      const chR = Math.sqrt(
+        Math.pow(chsize.x / 2, 2) + Math.pow(chsize.z / 2, 2)
+      ); // 人物半径
       const chH = chsize.y; // 人物高度
       const start = new THREE.Vector3(0, chR, 0);
       const end = new THREE.Vector3(0, chH - chR, 0);
@@ -45,7 +47,7 @@ export default class Character extends GLTFLoader {
       this.actions = {
         Walk: this.mixer.clipAction(animation[1]),
         Run: this.mixer.clipAction(animation[1]),
-        Idle: this.mixer.clipAction(animation[1])
+        Idle: this.mixer.clipAction(animation[1]),
       };
 
       for (const m in this.actions) {

@@ -72,7 +72,7 @@ export const Controls = {
 // floor参数
 export const Floor = {
   // 地面边长
-  size: 5000,
+  size: 1000,
   // 一片floor重复次数
   repeat: 16,
   // 法线贴图的缩放因子
@@ -110,7 +110,7 @@ export const ModelPosition: Record<string, PositionT> = {
     x: 0,
     y: -10,
     z: 0,
-  }
+  },
 };
 
 // 开关配置
