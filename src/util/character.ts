@@ -7,10 +7,10 @@ export default class Character extends GLTFLoader {
   // mixer
   mixer: THREE.AnimationMixer | undefined;
 
-  // actions
+  // actions 行为动作列表
   actions: Record<string, THREE.AnimationAction> | undefined;
 
-  // chCapsule
+  // chCapsule 人物胶囊几何
   chCapsule: Capsule | undefined;
 
   constructor(group: THREE.Group) {

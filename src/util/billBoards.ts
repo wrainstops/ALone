@@ -1,6 +1,9 @@
 import * as THREE from "three";
 
 export default class BillBoards {
+  // object billBoards对象
+  object: THREE.Object3D;
+
   constructor(
     group: THREE.Group,
     baseWidth: number,
@@ -8,9 +11,7 @@ export default class BillBoards {
     text: string
   ) {
     const ctx = document.createElement("canvas").getContext("2d")!;
-    // ctx.font = `${ size }px bold`;
     const textWidth = ctx.measureText(text).width;
-    console.log('textWidth', textWidth);
 
     const borderSize = 4;
     const width = baseWidth + borderSize;
@@ -41,8 +42,10 @@ export default class BillBoards {
     label.scale.x = canvas.width * 0.01;
     label.scale.y = canvas.height * 0.01;
     const root = new THREE.Object3D();
+    root.name = text;
     root.position.set(2, 2, 2);
     root.add(label);
+    this.object = root;
 
     group.add(root);
   }

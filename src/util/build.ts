@@ -9,7 +9,9 @@ import {
 } from "@/constant/application";
 
 export default class Build extends GLTFLoader {
+  // build1 建筑1
   build1!: THREE.Group;
+
   constructor(group: THREE.Group, octree: Octree) {
     super();
 

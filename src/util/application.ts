@@ -10,10 +10,10 @@ import {
   Controls,
   Floor,
 } from "@/constant/application";
-import BillBoards from "@/util/billBoards";
 import Build from "@/util/build";
 import Character from "@/util/character";
 import CustomOrbitControls from "@/util/orbit";
+import Pick from "@/util/pick";
 import type { ApplicationOptions } from "#/application";
 
 export default class Application {
@@ -159,8 +159,8 @@ export default class Application {
       // build
       new Build(this.buildGroup, this.worldOctree);
 
-      // billBoards
-      new BillBoards(this.buildGroup, 200, 32, "hello world");
+      // pick 选取对象
+      new Pick(this.camera, this.canvas, this.buildGroup)
 
       this.animate();
       this.addFloor();
