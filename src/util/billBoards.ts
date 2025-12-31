@@ -43,7 +43,8 @@ export default class BillBoards {
     label.scale.y = canvas.height * 0.01;
     const root = new THREE.Object3D();
     root.name = text;
-    root.position.set(2, 2, 2);
+    root.position.set(-88.3, 4.9, 106);
+    // root.position.set(-73, 5, 106);
     root.add(label);
     this.object = root;
 

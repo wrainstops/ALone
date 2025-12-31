@@ -321,7 +321,6 @@ export default class Application {
     // 胶囊体碰撞
     this.character.chCapsule?.translate(ease);
     const res = this.worldOctree.capsuleIntersect(this.character.chCapsule!);
-    console.log("res", res);
     this.isPlayerOnFloor = false;
 
     if (res) {
