@@ -14,5 +14,5 @@
     "editor.formatOnSave": true,
     "editor.tabSize": 2
   },
-  "json.format.enable": true
+  "json.format.enable": false
 }
