@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "hexo-theme-particlex",
   "version": "2.8.1",
   "description": "A concise Hexo theme, based on Particle.",

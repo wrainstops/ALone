@@ -95,7 +95,11 @@ crypto:
 
 # Search
 search:
-    enable: false
+    enable: true
+
+# APlayer
+aplayer:
+    enable: true
 
 # giscus
 # https://github.com/giscus/giscus
