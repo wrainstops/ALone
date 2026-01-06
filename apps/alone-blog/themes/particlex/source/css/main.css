@@ -380,11 +380,18 @@
 }
 #menu #desktop-menu {
     height: 50px;
+    display: flex;
+    align-items: center;
+}
+#menu #desktop-menu .avatar {
+    height: 80%;
+    width: auto;
+    margin-left: 50px;
 }
 #menu #desktop-menu .title {
     color: #555;
     display: inline-block;
-    margin-left: 60px;
+    margin-left: 20px;
     margin-right: 5px;
 }
 #menu #desktop-menu a {
@@ -875,9 +882,6 @@ ol li {
     }
     #home-posts-wrap {
         max-width: 1200px;
-    }
-    #menu #desktop-menu {
-        display: block;
     }
     #menu #mobile-menu {
         display: none;

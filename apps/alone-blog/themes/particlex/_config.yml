@@ -28,40 +28,39 @@ colors:
 
 # Main menu navigation
 menu:
-    Home:
+    首页:
         name: house
         theme: solid
         link: /
-    About:
-        name: id-card
-        theme: solid
-        link: /about
-    Archives:
+    文章:
         name: box-archive
         theme: solid
         link: /archives
-    Categories:
+    分类:
         name: bookmark
         theme: solid
         link: /categories
-    Tags:
+    标签:
         name: tags
         theme: solid
         link: /tags
+    关于我:
+        name: id-card
+        theme: solid
+        link: /about
 
 # Side info card
 card:
     enable: true
     description: |
-        Description
-        ...
+        HELLO
     iconLinks:
     friendLinks:
-        Argvchs: https://argvchs.github.io
+        # Argvchs: https://argvchs.github.io
 
 # Footer info
 footer:
-    since: 2022
+    since: 2023
     # Customize the server domain name ICP
     ICP:
         enable: false

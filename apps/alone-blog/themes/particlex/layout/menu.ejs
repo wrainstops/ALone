@@ -1,5 +1,6 @@
 <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
     <nav id="desktop-menu">
+        <img src="<%- url_for(theme.avatar) %>" alt="avatar" class="avatar" />
         <a class="title" href="<%- config.root %>">
             <span><%= config.title.toUpperCase() %></span>
         </a>
