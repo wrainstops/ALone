@@ -55,6 +55,10 @@ card:
     description: |
         HELLO
     iconLinks:
+        Github:
+            name: github
+            theme: brands
+            link: https://github.com/wrainstops
     friendLinks:
         # Argvchs: https://argvchs.github.io
 
