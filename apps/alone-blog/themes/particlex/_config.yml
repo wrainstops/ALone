@@ -44,10 +44,10 @@ menu:
         name: tags
         theme: solid
         link: /tags
-    关于我:
-        name: id-card
-        theme: solid
-        link: /about
+    # 关于我:
+    #     name: id-card
+    #     theme: solid
+    #     link: /about
 
 # Side info card
 card:
