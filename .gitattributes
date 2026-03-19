@@ -1,3 +1,3 @@
 * text=auto eol=lf
 
-apps/alone-blog/**/*.ejs linguist-vendored
+apps/alone-blog/* linguist-vendored
