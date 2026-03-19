@@ -1,6 +1,6 @@
-import * as THREE from "three";
-import { HDRLoader } from "three/addons/loaders/HDRLoader.js";
-import { Octree } from "three/addons/math/Octree.js";
+import * as THREE from 'three'
+import { HDRLoader } from 'three/addons/loaders/HDRLoader.js'
+import { Octree } from 'three/addons/math/Octree.js'
 import {
   PerspectiveCamera,
   PerspectiveCameraPosition,
@@ -9,195 +9,188 @@ import {
   DirectionalLightPosition,
   Controls,
   Floor,
-} from "@/constant/application";
-import Build from "@/util/build";
-import Character from "@/util/character";
-import CustomOrbitControls from "@/util/orbit";
-import Pick from "@/util/pick";
-import type { ApplicationOptions } from "#/application";
+} from '@/constant/application'
+import Build from '@/util/build'
+import Character from '@/util/character'
+import CustomOrbitControls from '@/util/orbit'
+import Pick from '@/util/pick'
+import type { ApplicationOptions } from '#/application'
 
 export default class Application {
   // canvas
-  private canvas: HTMLCanvasElement;
+  private canvas: HTMLCanvasElement
 
   // camera
-  private camera: THREE.PerspectiveCamera;
+  private camera: THREE.PerspectiveCamera
 
   // clock
-  private clock: THREE.Clock;
+  private clock: THREE.Clock
 
   // scene
-  private scene: THREE.Scene;
+  private scene: THREE.Scene
 
   // group
-  private group: THREE.Group;
+  private group: THREE.Group
 
   // followGroup
-  private followGroup: THREE.Group;
+  private followGroup: THREE.Group
 
   // buildGroup
-  private buildGroup: THREE.Group;
+  private buildGroup: THREE.Group
 
   // directionalLight
-  private directionalLight: THREE.DirectionalLight;
+  private directionalLight: THREE.DirectionalLight
 
   // renderer
-  private renderer: THREE.WebGLRenderer;
+  private renderer: THREE.WebGLRenderer
 
   // orbitControls
-  private orbitControls: CustomOrbitControls;
+  private orbitControls: CustomOrbitControls
 
   // character
-  private character!: Character;
+  private character!: Character
 
   // floor
-  private floor!: THREE.Mesh;
+  private floor!: THREE.Mesh
 
   // worldOctree 八叉树
-  private worldOctree: Octree;
+  private worldOctree: Octree
 
   // oldPosition 旧的位置 用户碰撞检测后 恢复位置
-  private oldPosition: THREE.Vector3 = new THREE.Vector3();
+  private oldPosition: THREE.Vector3 = new THREE.Vector3()
 
   // isPlayerOnFloor 是否在地面上
-  private isPlayerOnFloor: boolean = false;
+  private isPlayerOnFloor: boolean = false
 
   constructor(options: ApplicationOptions) {
-    this.canvas = options.canvas;
+    this.canvas = options.canvas
 
     // camera
-    const { fov, near, far } = PerspectiveCamera;
-    const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
-    this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    const { x = 0, y = 0, z = 0 } = PerspectiveCameraPosition;
-    this.camera.position.set(x, y, z);
+    const { fov, near, far } = PerspectiveCamera
+    const aspect = this.canvas.clientWidth / this.canvas.clientHeight
+    this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+    const { x = 0, y = 0, z = 0 } = PerspectiveCameraPosition
+    this.camera.position.set(x, y, z)
 
     // clock
-    this.clock = new THREE.Clock();
+    this.clock = new THREE.Clock()
 
     // scene
-    this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(Fog.color, Fog.near, Fog.far);
+    this.scene = new THREE.Scene()
+    this.scene.fog = new THREE.Fog(Fog.color, Fog.near, Fog.far)
 
     // group
-    this.group = new THREE.Group();
-    this.scene.add(this.group);
+    this.group = new THREE.Group()
+    this.scene.add(this.group)
 
     // followGroup
-    this.followGroup = new THREE.Group();
-    this.group.add(this.followGroup);
+    this.followGroup = new THREE.Group()
+    this.group.add(this.followGroup)
 
     // buildGroup
-    this.buildGroup = new THREE.Group();
-    this.scene.add(this.buildGroup);
+    this.buildGroup = new THREE.Group()
+    this.scene.add(this.buildGroup)
 
     // directionalLight
     this.directionalLight = new THREE.DirectionalLight(
       DirectionalLight.color,
-      DirectionalLight.intensity
-    );
-    const { x: dlx = 0, y: dly = 0, z: dlz = 0 } = DirectionalLightPosition;
-    this.directionalLight.position.set(dlx, dly, dlz);
+      DirectionalLight.intensity,
+    )
+    const { x: dlx = 0, y: dly = 0, z: dlz = 0 } = DirectionalLightPosition
+    this.directionalLight.position.set(dlx, dly, dlz)
     // 设置物体投射阴影
-    this.directionalLight.castShadow = true;
+    this.directionalLight.castShadow = true
     // 阴影分辨率
     this.directionalLight.shadow.mapSize.set(
       DirectionalLight.shadowMapSizeX,
-      DirectionalLight.shadowMapSizeY
-    );
-    this.followGroup.add(this.directionalLight);
-    this.followGroup.add(this.directionalLight.target);
+      DirectionalLight.shadowMapSizeY,
+    )
+    this.followGroup.add(this.directionalLight)
+    this.followGroup.add(this.directionalLight.target)
 
     // worldOctree
-    this.worldOctree = new Octree();
+    this.worldOctree = new Octree()
 
     // renderer
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       // 抗锯齿, 提高渲染质量, 但会影响性能
       antialias: true,
-    });
+    })
     // 像素比, 适应高分辨率屏幕
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setPixelRatio(window.devicePixelRatio)
     // 渲染器尺寸, 设置为canvas尺寸
-    this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
+    this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight)
     // 渲染循环
-    this.renderer.setAnimationLoop(this.animate.bind(this));
+    this.renderer.setAnimationLoop(this.animate.bind(this))
     // 高质量色调映射, 高质量, 真实感视觉效果
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping
     // 曝光值
-    this.renderer.toneMappingExposure = 0.5;
+    this.renderer.toneMappingExposure = 0.5
     // 开启阴影配置
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.enabled = true
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
     // 背景透明
-    this.renderer.setClearColor(0x000000, 0);
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.setClearColor(0x000000, 0)
+    this.renderer.render(this.scene, this.camera)
 
     // orbitControls
-    this.orbitControls = new CustomOrbitControls(this.camera, this.canvas);
+    this.orbitControls = new CustomOrbitControls(this.camera, this.canvas)
 
-    window.addEventListener("resize", this.onWindowResize.bind(this));
-    document.addEventListener("keydown", this.onKeyDown.bind(this));
-    document.addEventListener("keyup", this.onKeyUp.bind(this));
-    document.addEventListener("mousedown", this.onMouseDown.bind(this));
-    document.addEventListener("mouseup", this.onMouseUp.bind(this));
+    window.addEventListener('resize', this.onWindowResize.bind(this))
+    document.addEventListener('keydown', this.onKeyDown.bind(this))
+    document.addEventListener('keyup', this.onKeyUp.bind(this))
+    document.addEventListener('mousedown', this.onMouseDown.bind(this))
+    document.addEventListener('mouseup', this.onMouseUp.bind(this))
 
     // hdr环境贴图
-    new HDRLoader().setPath("/hdr/").load("sky.hdr", (texture) => {
+    new HDRLoader().setPath('/hdr/').load('sky.hdr', (texture) => {
       // 设置映射模式, 渲染反射效果
-      texture.mapping = THREE.EquirectangularReflectionMapping;
+      texture.mapping = THREE.EquirectangularReflectionMapping
       // 将环境贴图加到场景
-      this.scene.environment = texture;
-      this.scene.background = texture;
+      this.scene.environment = texture
+      this.scene.background = texture
       // 环境贴图强度
-      this.scene.environmentIntensity = 1.5;
+      this.scene.environmentIntensity = 1.5
 
       // character
-      this.character = new Character(this.group);
+      this.character = new Character(this.group)
 
       // build
-      new Build(this.buildGroup, this.worldOctree);
+      new Build(this.buildGroup, this.worldOctree)
 
       // pick 选取对象
       new Pick(this.camera, this.canvas, this.buildGroup)
 
-      this.animate();
-      this.addFloor();
-    });
+      this.animate()
+      this.addFloor()
+    })
   }
 
   addFloor() {
-    const {
-      size,
-      repeat,
-      normalMapScale,
-      meshColor,
-      roughness,
-      widthSegments,
-      heightSegments,
-    } = Floor;
+    const { size, repeat, normalMapScale, meshColor, roughness, widthSegments, heightSegments } =
+      Floor
 
     // 获取最大可用各向异性
-    const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
+    const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy()
 
     // 纹理贴图 漫反射
-    const floorD = new THREE.TextureLoader().load("/floor/floor_diffuse.jpg");
+    const floorD = new THREE.TextureLoader().load('/floor/floor_diffuse.jpg')
     // 颜色空间, 确保颜色正确渲染
-    floorD.colorSpace = THREE.SRGBColorSpace;
-    floorD.repeat.set(repeat, repeat);
+    floorD.colorSpace = THREE.SRGBColorSpace
+    floorD.repeat.set(repeat, repeat)
     // 纹理在水平方向上包裹方式, 纹理在垂直方向上包裹方式, 均设置为重复平铺
-    floorD.wrapS = floorD.wrapT = THREE.RepeatWrapping;
+    floorD.wrapS = floorD.wrapT = THREE.RepeatWrapping
     // 纹理的各向异性过滤
-    floorD.anisotropy = maxAnisotropy;
+    floorD.anisotropy = maxAnisotropy
 
     // 纹理贴图 法线
-    const floorN = new THREE.TextureLoader().load("/floor/floor_normal.jpg");
-    floorN.repeat.set(repeat, repeat);
+    const floorN = new THREE.TextureLoader().load('/floor/floor_normal.jpg')
+    floorN.repeat.set(repeat, repeat)
     // 纹理在水平方向上包裹方式, 纹理在垂直方向上包裹方式, 均设置为重复平铺
-    floorN.wrapS = floorN.wrapT = THREE.RepeatWrapping;
+    floorN.wrapS = floorN.wrapT = THREE.RepeatWrapping
     // 纹理的各向异性过滤
-    floorN.anisotropy = maxAnisotropy;
+    floorN.anisotropy = maxAnisotropy
 
     // 标准网格材质
     const mat = new THREE.MeshStandardMaterial({
@@ -213,208 +206,200 @@ export default class Application {
       depthWrite: false,
       // 表面粗糙度
       roughness: roughness,
-    });
+    })
 
     // 创建平面几何体, 用作地面的基础, 参数(平面宽度, 平面高度, 沿宽度方向的分割段数, 沿高度方向的分割段数)
-    const g = new THREE.PlaneGeometry(
-      size,
-      size,
-      widthSegments,
-      heightSegments
-    );
-    g.rotateX(-Math.PI / 2);
+    const g = new THREE.PlaneGeometry(size, size, widthSegments, heightSegments)
+    g.rotateX(-Math.PI / 2)
 
     // Mesh将几何体g和材质mat结合, 形成可渲染的三维对象
-    this.floor = new THREE.Mesh(g, mat);
-    this.floor.receiveShadow = true;
-    this.scene.add(this.floor);
+    this.floor = new THREE.Mesh(g, mat)
+    this.floor.receiveShadow = true
+    this.scene.add(this.floor)
   }
 
   animate() {
     // 获取自上次调用该方法以来的时间间隔(单位s)
-    const delta = this.clock.getDelta();
+    const delta = this.clock.getDelta()
 
-    this.updateCharacter(delta);
+    this.updateCharacter(delta)
 
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera)
   }
 
   updateCharacter(delta: number) {
-    const { fadeDuration: fade, key, up, ease, rotate, position } = Controls;
-    const { size } = Floor;
+    const { fadeDuration: fade, key, up, ease, rotate, position } = Controls
+    const { size } = Floor
 
     // 不在地面上 自由落体
     if (!this.isPlayerOnFloor && position.y > 0) {
-      position.y -= delta;
-      this.camera.position.y -= delta;
+      position.y -= delta
+      this.camera.position.y -= delta
     }
 
     // 获取当前水平旋转角度(弧度)
-    const azimuth = this.orbitControls.getAzimuthalAngle();
+    const azimuth = this.orbitControls.getAzimuthalAngle()
 
     // 运动标记
-    const active = key[0] === 0 && key[1] === 0 ? false : true;
+    const active = key[0] === 0 && key[1] === 0 ? false : true
     // 动画类型
-    const play = active ? "Walk" : "Idle";
+    const play = active ? 'Walk' : 'Idle'
 
     // 动画改变 过渡
     if (Controls.current !== play) {
-      const current = this.character.actions![play];
-      const old = this.character.actions![Controls.current];
-      Controls.current = play;
+      const current = this.character.actions![play]
+      const old = this.character.actions![Controls.current]
+      Controls.current = play
 
-      this.setWeight(current, 1.0);
-      old.fadeOut(fade);
-      current.reset().fadeIn(fade).play();
+      this.setWeight(current, 1.0)
+      old.fadeOut(fade)
+      current.reset().fadeIn(fade).play()
     }
 
     // 移动
-    if (Controls.current === "Walk") {
+    if (Controls.current === 'Walk') {
       // 速度
-      const velocity = Controls.velocity;
+      const velocity = Controls.velocity
 
       // 方向
-      ease.set(key[1], 0, key[0]).multiplyScalar(velocity * delta);
+      ease.set(key[1], 0, key[0]).multiplyScalar(velocity * delta)
 
       // 相机方向
-      const angle = this.unwrapRad(Math.atan2(ease.x, ease.z) + azimuth);
+      const angle = this.unwrapRad(Math.atan2(ease.x, ease.z) + azimuth)
       // 四元数rotate绕up旋转, 旋转角度是angle
-      rotate.setFromAxisAngle(up, angle);
+      rotate.setFromAxisAngle(up, angle)
 
       // ease添加相机角度
-      ease.applyAxisAngle(up, azimuth);
+      ease.applyAxisAngle(up, azimuth)
 
       // 将ease向量和position向量相加, 得到当前位置
-      position.add(ease);
+      position.add(ease)
 
       // 碰撞检测
-      this.checkCollision(ease, position, size);
+      this.checkCollision(ease, position, size)
 
       // 旋转, 使人物朝向行走方向
-      this.group.quaternion.rotateTowards(rotate, Controls.rotateSpeed);
+      this.group.quaternion.rotateTowards(rotate, Controls.rotateSpeed)
 
-      this.orbitControls.target.copy(position).add({ x: 0, y: 1, z: 0 });
+      this.orbitControls.target.copy(position).add({ x: 0, y: 1, z: 0 })
 
       // 保存旧位置
-      this.oldPosition.copy(position);
+      this.oldPosition.copy(position)
     }
     // 把position赋值给group.position
-    this.group.position.copy(position);
-    this.followGroup.position.copy(position);
+    this.group.position.copy(position)
+    this.followGroup.position.copy(position)
 
-    if (this.character?.mixer) this.character?.mixer.update(delta);
+    if (this.character?.mixer) this.character?.mixer.update(delta)
 
-    this.orbitControls.update();
+    this.orbitControls.update()
   }
 
   // 碰撞检测
   checkCollision(ease: THREE.Vector3, position: THREE.Vector3, size: number) {
     // 边界
-    if (
-      Math.abs(position["x"]) > size / 2 ||
-      Math.abs(position["z"]) > size / 2
-    ) {
-      position.copy(this.oldPosition);
-      return;
+    if (Math.abs(position['x']) > size / 2 || Math.abs(position['z']) > size / 2) {
+      position.copy(this.oldPosition)
+      return
     }
 
     // 胶囊体碰撞
-    this.character.chCapsule?.translate(ease);
-    const res = this.worldOctree.capsuleIntersect(this.character.chCapsule!);
-    this.isPlayerOnFloor = false;
+    this.character.chCapsule?.translate(ease)
+    const res = this.worldOctree.capsuleIntersect(this.character.chCapsule!)
+    this.isPlayerOnFloor = false
 
     if (res) {
-      this.isPlayerOnFloor = res.normal.y > 0;
+      this.isPlayerOnFloor = res.normal.y > 0
       if (res.depth > 0.1) {
-        position.copy(this.oldPosition);
-        this.character.chCapsule?.translate(ease.negate());
+        position.copy(this.oldPosition)
+        this.character.chCapsule?.translate(ease.negate())
       } else {
-        position.y += res.depth;
-        ease.y += res.depth;
-        this.camera.position.add(ease);
+        position.y += res.depth
+        ease.y += res.depth
+        this.camera.position.add(ease)
       }
     } else {
-      this.camera.position.add(ease);
+      this.camera.position.add(ease)
     }
   }
 
   setWeight(action: THREE.AnimationAction, weight: number) {
-    action.enabled = true;
-    action.setEffectiveTimeScale(1);
-    action.setEffectiveWeight(weight);
+    action.enabled = true
+    action.setEffectiveTimeScale(1)
+    action.setEffectiveWeight(weight)
   }
 
   unwrapRad(r: number) {
-    return Math.atan2(Math.sin(r), Math.cos(r));
+    return Math.atan2(Math.sin(r), Math.cos(r))
   }
 
   onWindowResize() {
-    this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
+    this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight
     // 更新相机的投影矩阵
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
+    this.camera.updateProjectionMatrix()
+    this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight)
   }
 
   onKeyDown(e: KeyboardEvent) {
-    const key = Controls.key;
-    const { position } = Controls;
+    const key = Controls.key
+    const { position } = Controls
     switch (e.code) {
-      case "ArrowUp":
-      case "KeyW":
-        key[0] = -1;
-        break;
-      case "ArrowDown":
-      case "KeyS":
-        key[0] = 1;
-        break;
-      case "ArrowLeft":
-      case "KeyA":
-        key[1] = -1;
-        break;
-      case "ArrowRight":
-      case "KeyD":
-        key[1] = 1;
-        break;
-      case "Space":
+      case 'ArrowUp':
+      case 'KeyW':
+        key[0] = -1
+        break
+      case 'ArrowDown':
+      case 'KeyS':
+        key[0] = 1
+        break
+      case 'ArrowLeft':
+      case 'KeyA':
+        key[1] = -1
+        break
+      case 'ArrowRight':
+      case 'KeyD':
+        key[1] = 1
+        break
+      case 'Space':
         if (this.isPlayerOnFloor || position.y <= 0) {
-          position.y += 3;
-          this.camera.position.y += 3;
+          position.y += 3
+          this.camera.position.y += 3
         }
-        break;
-      case "KeyF":
+        break
+      case 'KeyF':
         // 不在地面上无法点击F
         if (!this.isPlayerOnFloor && position.y > 0) {
-          return;
+          return
         }
         // 重置运动状态
-        key[0] = 0;
-        key[1] = 0;
+        key[0] = 0
+        key[1] = 0
         // 重置速度
-        Controls.velocity = Controls.walkVelocity;
-        window.open("https://www.baidu.com", "_blank");
-        break;
+        Controls.velocity = Controls.walkVelocity
+        window.open('https://www.baidu.com', '_blank')
+        break
     }
   }
 
   onKeyUp(e: KeyboardEvent) {
-    const key = Controls.key;
+    const key = Controls.key
     switch (e.code) {
-      case "ArrowUp":
-      case "KeyW":
-        key[0] = key[0] < 0 ? 0 : key[0];
-        break;
-      case "ArrowDown":
-      case "KeyS":
-        key[0] = key[0] > 0 ? 0 : key[0];
-        break;
-      case "ArrowLeft":
-      case "KeyA":
-        key[1] = key[1] < 0 ? 0 : key[1];
-        break;
-      case "ArrowRight":
-      case "KeyD":
-        key[1] = key[1] > 0 ? 0 : key[1];
-        break;
+      case 'ArrowUp':
+      case 'KeyW':
+        key[0] = key[0] < 0 ? 0 : key[0]
+        break
+      case 'ArrowDown':
+      case 'KeyS':
+        key[0] = key[0] > 0 ? 0 : key[0]
+        break
+      case 'ArrowLeft':
+      case 'KeyA':
+        key[1] = key[1] < 0 ? 0 : key[1]
+        break
+      case 'ArrowRight':
+      case 'KeyD':
+        key[1] = key[1] > 0 ? 0 : key[1]
+        break
     }
   }
 
@@ -422,14 +407,14 @@ export default class Application {
     switch (e.button) {
       // 左键
       case 0:
-        break;
+        break
       // 中键
       case 1:
-        break;
+        break
       // 右键
       case 2:
-        Controls.velocity = Controls.runVelocity;
-        break;
+        Controls.velocity = Controls.runVelocity
+        break
     }
   }
 
@@ -437,14 +422,14 @@ export default class Application {
     switch (e.button) {
       // 左键
       case 0:
-        break;
+        break
       // 中键
       case 1:
-        break;
+        break
       // 右键
       case 2:
-        Controls.velocity = Controls.walkVelocity;
-        break;
+        Controls.velocity = Controls.walkVelocity
+        break
     }
   }
 }

@@ -2,9 +2,9 @@
 title: 下一个排列
 categories: thought
 tags:
-    - leetcode
-    - 技巧
-    - 数组
+  - leetcode
+  - 技巧
+  - 数组
 ---
 
 LeetCode [31](https://leetcode.cn/problems/next-permutation/description)
@@ -12,6 +12,7 @@ LeetCode [31](https://leetcode.cn/problems/next-permutation/description)
 整数数组的 下一个排列 是指其整数的下一个字典序更大的排列。更正式地，如果数组的所有排列根据其字典顺序从小到大排列在一个容器中，那么数组的 下一个排列 就是在这个有序容器中排在它后面的那个排列。如果不存在下一个更大的排列，那么这个数组必须重排为字典序最小的排列（即，其元素按升序排列）。
 
 <!-- more -->
+
 例如，arr = [1,2,3] 的下一个排列是 [1,3,2]。
 类似地，arr = [2,3,1] 的下一个排列是 [3,1,2]。
 而 arr = [3,2,1] 的下一个排列是 [1,2,3] ，因为 [3,2,1] 不存在一个字典序更大的排列。
@@ -24,8 +25,8 @@ LeetCode [31](https://leetcode.cn/problems/next-permutation/description)
 - 其实题目的意思就是，对数组的全排列所有情况，升序排序，找到下一个排列情况，如果最大，就返回最小的排列情况。
 - 从例子和特殊情况出发，[1, 2, 3]的下一个是[1, 3, 2]；[1, 3, 4, 2]的下一个是[1, 4, 2, 3]。
 - 于是猜测变换逻辑：
-    - 找到比左右都大的数 记为nums[target]，交换nums[target]和nums[target-1]，然后对target右边的数进行升序排序。
-    - 如果target位置是最后一个值，则分两种情况，如果比nums[target-1]大，那就交换nums[target]和nums[target-1]，否则就最大的排列情况，直接翻转数组得到最小排列。
+  - 找到比左右都大的数 记为nums[target]，交换nums[target]和nums[target-1]，然后对target右边的数进行升序排序。
+  - 如果target位置是最后一个值，则分两种情况，如果比nums[target-1]大，那就交换nums[target]和nums[target-1]，否则就最大的排列情况，直接翻转数组得到最小排列。
 
 写代码ing~~
 
@@ -87,7 +88,7 @@ func nextPermutation(nums []int)  {
 					}
 				}
 			}
-            
+
 			for p := target; p < len(nums); p++ {
 				if nums[p] > nums[target-1] {
 					nums[target-1], nums[p] = nums[p], nums[target-1]

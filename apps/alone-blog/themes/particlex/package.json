@@ -3,27 +3,27 @@
   "name": "hexo-theme-particlex",
   "version": "2.8.1",
   "description": "A concise Hexo theme, based on Particle.",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "keywords": [
+    "giscus",
+    "gitalk",
+    "hexo",
+    "hexo-theme",
+    "twikoo",
+    "waline"
+  ],
+  "homepage": "https://github.com/theme-particlex/hexo-theme-particlex#readme",
+  "bugs": {
+    "url": "https://github.com/theme-particlex/hexo-theme-particlex/issues"
   },
+  "license": "MIT",
+  "author": "Argvchs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/theme-particlex/hexo-theme-particlex.git"
   },
-  "keywords": [
-    "hexo",
-    "hexo-theme",
-    "gitalk",
-    "twikoo",
-    "waline",
-    "giscus"
-  ],
-  "author": "Argvchs",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/theme-particlex/hexo-theme-particlex/issues"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "homepage": "https://github.com/theme-particlex/hexo-theme-particlex#readme",
   "dependencies": {
     "aplayer": "^1.10.1",
     "hexo-helper-crypto": "^1.2.1",

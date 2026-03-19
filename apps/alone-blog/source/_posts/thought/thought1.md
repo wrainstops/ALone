@@ -2,8 +2,8 @@
 title: 缺失的第一个正数
 categories: thought
 tags:
-    - leetcode
-    - 数组
+  - leetcode
+  - 数组
 ---
 
 LeetCode [41](https://leetcode.cn/problems/first-missing-positive/description/)
@@ -18,7 +18,7 @@ LeetCode [41](https://leetcode.cn/problems/first-missing-positive/description/)
 - 但是题目要求时间复杂度为0(n)，一说0(n)，会想到只能一层遍历，那就使用哈希表，把数组的数存到哈希表里，然后从1开始向后遍历正数，第一个不在哈希表里的，就是缺失的。
 - 但是题目要求是常数级别的额外空间。
 - 又考虑过位运算，想到了[136](https://leetcode.cn/problems/single-number/description/)题，但不适用。
-<i style="color: #FF000088;">止步于此</i>
+  <i style="color: #FF000088;">止步于此</i>
 
 ---
 

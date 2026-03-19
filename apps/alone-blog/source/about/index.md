@@ -1,3 +1,3 @@
 ---
-type: "about"
+type: 'about'
 ---

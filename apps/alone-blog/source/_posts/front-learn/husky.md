@@ -2,8 +2,8 @@
 title: 前端项目规范husky+lint-staged
 categories: 前端
 tags:
-    - husky
-    - lint-staged
+  - husky
+  - lint-staged
 ---
 
 husky 优化您的提交记录和其他功能，能自动检查提交信息、代码，并在提交或推送时运行测试。
@@ -60,12 +60,8 @@ pnpm lint-staged
 
 ```json
 {
-    "*.{tsx,jsx,ts,js}": [
-      "prettier --write"
-    ],
-    "*.{scss}": [
-      "stylelint --fix"
-    ]
+  "*.{tsx,jsx,ts,js}": ["prettier --write"],
+  "*.{scss}": ["stylelint --fix"]
 }
 ```
 
