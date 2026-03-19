@@ -1,3 +1,4 @@
 * text=auto eol=lf
 
-apps/alone-blog/* linguist-vendored
+*.ejs linguist-detectable=false
+*.css linguist-detectable=false
