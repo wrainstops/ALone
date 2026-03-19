@@ -1,6 +1,6 @@
-# ALone
+# frontplay
 
-Turborepo
+Front Entertainment
 
 ## Project Setup
 

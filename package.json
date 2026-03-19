@@ -6,6 +6,7 @@
     "dev": "turbo run dev",
     "dev:3d": "pnpm --filter alone-3d dev",
     "dev:blog": "pnpm --filter alone-blog dev",
+    "dev:frontplay": "pnpm --filter frontplay dev",
     "lint": "turbo run lint",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
