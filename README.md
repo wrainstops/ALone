@@ -1,6 +1,5 @@
 # ALone
 
-Turborepo
 A Turborepo, write my personal website and create some fun things.
 
 ## Project Setup
