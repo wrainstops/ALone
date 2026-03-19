@@ -15,7 +15,7 @@
         :options="menuOptions"
       />
     </n-layout-sider>
-    <n-layout content-style="padding: 24px;" :native-scrollbar="false">
+    <n-layout content-style="padding: 12px;">
       <router-view></router-view>
     </n-layout>
   </n-layout>
