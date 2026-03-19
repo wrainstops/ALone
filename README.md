@@ -1,6 +1,7 @@
 # ALone
 
 Turborepo
+A Turborepo, write my personal website and create some fun things.
 
 ## Project Setup
 
@@ -12,6 +13,10 @@ pnpm install
 
 ```sh
 pnpm dev
+
+pnpm dev:3d
+pnpm dev:blog
+pnpm dev:frontplay
 ```
 
 ### Type-Check, Compile and Minify for Production
