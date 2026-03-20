@@ -16,18 +16,24 @@
       />
     </n-layout-sider>
     <n-layout content-style="padding: 12px;">
-      <router-view></router-view>
+      <div ref="main" class="h-full w-full overflow-auto">
+        <router-view></router-view>
+      </div>
     </n-layout>
+    <n-back-top :listen-to="target" />
   </n-layout>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { NLayout, NLayoutSider, NMenu, type MenuOption } from 'naive-ui'
+import { NLayout, NLayoutSider, NMenu, NBackTop, type MenuOption } from 'naive-ui'
 import { LibraryOutline, AnalyticsOutline } from '@vicons/ionicons5'
 import { renderRouterLink, renderIcon } from '@/utils'
 
 const route = useRoute()
+const main = ref<HTMLElement | undefined>(undefined)
+const target = () => main.value as HTMLElement
 
 const menuOptions: MenuOption[] = [
   {

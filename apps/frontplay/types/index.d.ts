@@ -3,7 +3,7 @@ export type KeyValue = {
 }
 
 export type LabelValueOption = {
-  label: string
+  label: string | number
   value: any
   [key: string | number]: any
 }[]
