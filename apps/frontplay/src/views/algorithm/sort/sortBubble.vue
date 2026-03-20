@@ -2,7 +2,7 @@
   <div class="mt-4">
     <n-h3>冒泡排序</n-h3>
     <n-equation :value="equation" />
-    <Widget @run="runSort" />
+    <Widget @set-number-string="setNumberString" @run="runSort" />
     <div class="h-60 w-full mt-4 flex gap-4 overflow-auto">
       <TransitionGroup name="sort-list">
         <div
@@ -22,53 +22,32 @@
 import { ref } from 'vue'
 import { NH3, NEquation, useMessage } from 'naive-ui'
 import Widget from './widget.vue'
+import { numberStringToList } from '@/utils/sort'
 import type { LabelValueOption, KeyValue } from '#/index'
 
 const message = useMessage()
 
 const equation = '\\displaystyle时间复杂度: O(n^2); 空间复杂度: O(1)'
-const numberString = '2,1,5,4,3'
+const numberString = ref<string>('2,1,5,4,3')
+const numberList = ref<LabelValueOption>([])
 
-function numberStringToList(numberString: string): LabelValueOption {
-  let res: LabelValueOption = []
-  try {
-    const list = numberString.split(',')
-    if (list.length > 20) {
-      throw new Error('就最多20个数字叭')
-    }
-    let max = Number(list[0])
-    list.forEach((item, index) => {
-      if (isNaN(Number(item))) {
-        throw new Error('得输入数字哦')
-      }
-      if (Number(item) > max) {
-        max = Number(item)
-      }
-      res.push({
-        label: index,
-        value: Number(item),
-      })
-    })
-    max = Math.max(max, 1)
-    res.forEach((item) => {
-      item.height = `${Math.max((item.value / max) * 100, 1)}%`
-    })
-  } catch (error: unknown) {
-    message.error((error as Error).message, { duration: 5000 })
-    res = []
+// 字符串分隔为数组
+function setNumberList(str: string) {
+  if (numberStringToList(str) instanceof Error) {
+    message.error((numberStringToList(str) as Error).message, { duration: 5000 })
+    numberList.value = []
+  } else {
+    numberList.value = numberStringToList(str) as LabelValueOption
   }
-  return res
 }
-const numberList = ref(numberStringToList(numberString))
+setNumberList(numberString.value)
 
 const queue = ref<KeyValue[]>([])
 const runningIndex = ref(0) // 正在运行第几步
 const sortIndexs = ref<number[]>([]) // 正在排序的两个索引
 const sortedIndexs = ref<number[]>([]) // 已排序的索引
 
-/**
- * 生成冒泡排序的操作队列
- */
+// 生成冒泡排序的操作队列
 function generateBubbleSortQueue() {
   queue.value = []
   const len = numberList.value.length
@@ -110,6 +89,7 @@ async function runSort(mark: boolean = true) {
     fn() // 运行排序
     if (i === queue.value.length - 1) {
       finishSort()
+      return
     }
     interval = setTimeout(forFn, 800)
   }
@@ -118,17 +98,34 @@ async function runSort(mark: boolean = true) {
   interval = setTimeout(forFn, 800)
 }
 
+// 排序结束
 function finishSort() {
   sortIndexs.value = []
   runningIndex.value = 0
   clearTimeout(interval)
 }
 
+// 排序停止
+function stopSort() {
+  queue.value = []
+  sortedIndexs.value = []
+  finishSort()
+}
+
+// 设置一组排序的数字
+function setNumberString(str: string) {
+  if (str === numberString.value) return
+  numberString.value = str
+  setNumberList(str)
+  stopSort()
+  generateBubbleSortQueue()
+}
+
 function getNumberBgColor(index: number) {
-  return sortedIndexs.value.includes(index)
-    ? 'var(--main-color)'
-    : sortIndexs.value.includes(index)
-      ? 'red'
+  return sortIndexs.value.includes(index)
+    ? 'red'
+    : sortedIndexs.value.includes(index)
+      ? 'var(--main-color)'
       : 'var(--light-color)'
 }
 </script>

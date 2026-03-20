@@ -33,13 +33,17 @@ import { ref } from 'vue'
 import { NInput, NButton, NIcon, NTooltip } from 'naive-ui'
 import { Pause, Play, Stop } from '@vicons/ionicons5'
 
-const emit = defineEmits(['run'])
+const emit = defineEmits(['setNumberString', 'run'])
 
 const numberString = ref('')
 const isRunning = ref(false)
 
 function handleToggleRunning() {
   isRunning.value = !isRunning.value
+  if (numberString.value && isRunning.value) {
+    console.log(numberString.value)
+    emit('setNumberString', numberString.value)
+  }
   emit('run', isRunning.value)
 }
 </script>
