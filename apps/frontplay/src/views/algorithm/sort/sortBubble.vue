@@ -2,7 +2,7 @@
   <div class="mt-4">
     <n-h3>冒泡排序</n-h3>
     <n-equation :value="equation" />
-    <Widget @set-number-string="setNumberString" @run="runSort" />
+    <Widget @set-number-string="setNumberString" @run="runSort" @stop="stopSort" />
     <div class="h-60 w-full mt-4 flex gap-4 overflow-auto">
       <TransitionGroup name="sort-list">
         <div
@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onBeforeUnmount } from 'vue'
 import { NH3, NEquation, useMessage } from 'naive-ui'
 import Widget from './widget.vue'
 import { numberStringToList } from '@/utils/sort'
@@ -110,6 +110,8 @@ function stopSort() {
   queue.value = []
   sortedIndexs.value = []
   finishSort()
+  setNumberList(numberString.value)
+  generateBubbleSortQueue()
 }
 
 // 设置一组排序的数字
@@ -118,7 +120,6 @@ function setNumberString(str: string) {
   numberString.value = str
   setNumberList(str)
   stopSort()
-  generateBubbleSortQueue()
 }
 
 function getNumberBgColor(index: number) {
@@ -128,6 +129,10 @@ function getNumberBgColor(index: number) {
       ? 'var(--main-color)'
       : 'var(--light-color)'
 }
+
+onBeforeUnmount(() => {
+  stopSort()
+})
 </script>
 
 <style scoped lang="scss">
