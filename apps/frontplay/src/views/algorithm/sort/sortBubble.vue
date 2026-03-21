@@ -2,7 +2,7 @@
   <div class="mt-4">
     <n-h3>冒泡排序</n-h3>
     <n-equation :value="equation" />
-    <Widget @set-number-string="setNumberString" @run="runSort" @stop="stopSort" />
+    <Widget ref="widgetRef" @set-number-string="setNumberString" @run="runSort" @stop="stopSort" />
     <div class="h-60 w-full mt-4 flex gap-4 overflow-auto">
       <TransitionGroup name="sort-list">
         <div
@@ -28,6 +28,7 @@ import type { LabelValueOption, KeyValue } from '#/index'
 const message = useMessage()
 
 const equation = '\\displaystyle时间复杂度: O(n^2); 空间复杂度: O(1)'
+const widgetRef = ref<typeof Widget>()
 const numberString = ref<string>('2,1,5,4,3')
 const numberList = ref<LabelValueOption>([])
 
@@ -101,8 +102,8 @@ async function runSort(mark: boolean = true) {
 // 排序结束
 function finishSort() {
   sortIndexs.value = []
-  runningIndex.value = 0
   clearTimeout(interval)
+  widgetRef.value?.handlePauseRunning()
 }
 
 // 排序停止
@@ -110,6 +111,7 @@ function stopSort() {
   queue.value = []
   sortedIndexs.value = []
   finishSort()
+  runningIndex.value = 0
   setNumberList(numberString.value)
   generateBubbleSortQueue()
 }
@@ -118,13 +120,13 @@ function stopSort() {
 function setNumberString(str: string) {
   if (str === numberString.value) return
   numberString.value = str
-  setNumberList(str)
   stopSort()
+  widgetRef.value?.handleStartRunning()
 }
 
-function getNumberBgColor(index: number) {
+function getNumberBgColor(index: number): string {
   return sortIndexs.value.includes(index)
-    ? 'red'
+    ? 'var(--error-color)'
     : sortedIndexs.value.includes(index)
       ? 'var(--main-color)'
       : 'var(--light-color)'

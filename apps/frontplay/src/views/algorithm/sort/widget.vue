@@ -38,6 +38,13 @@ const emit = defineEmits(['setNumberString', 'run', 'stop'])
 const numberString = ref('')
 const isRunning = ref(false)
 
+function handleStartRunning() {
+  isRunning.value = true
+}
+function handlePauseRunning() {
+  isRunning.value = false
+}
+
 function handleToggleRunning() {
   isRunning.value = !isRunning.value
   if (numberString.value && isRunning.value) {
@@ -50,4 +57,9 @@ function handleStopRunning() {
   isRunning.value = false
   emit('stop')
 }
+
+defineExpose({
+  handleStartRunning,
+  handlePauseRunning,
+})
 </script>

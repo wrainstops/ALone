@@ -14,6 +14,7 @@
       </template>
     </n-grid>
     <SortBubble v-if="index === 1" />
+    <SortSelect v-if="index === 5" />
   </div>
 </template>
 
@@ -24,6 +25,7 @@ import { sortList } from '@/constants/algorithm'
 import { useSortStore } from '@/stores/sort'
 import type { KeyValue } from '#/index'
 import SortBubble from './sortBubble.vue'
+import SortSelect from './sortSelect.vue'
 
 const sortStore = useSortStore()
 const index = computed(() => sortStore.getSortIndex)
