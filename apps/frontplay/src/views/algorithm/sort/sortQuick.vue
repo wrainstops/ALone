@@ -97,6 +97,7 @@ function generateQuickSortQueue(
       numberList.value[i]!,
       numberList.value[start]!,
     ]
+    sortedIndexs.value.push(i)
   }
   ;[list[start], list[i]] = [list[i]!, list[start]!]
   queue.value.push({ fn, index1: start, index2: i })
