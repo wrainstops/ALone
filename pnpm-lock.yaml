@@ -110,6 +110,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.2.2
         version: 4.2.2(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(stylus@0.62.0)(yaml@2.8.2))
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
       katex:
         specifier: ^0.16.39
         version: 0.16.39
@@ -1246,6 +1249,11 @@ packages:
   '@turbo/linux-64@2.8.20':
     resolution: {integrity: sha512-p2QxWUYyYUgUFG0b0kR+pPi8t7c9uaVlRtjTTI1AbCvVqkpjUfCcReBn6DgG/Hu8xrWdKLuyQFaLYFzQskZbcA==}
     cpu: [x64]
+    os: [linux]
+
+  '@turbo/linux-arm64@2.8.20':
+    resolution: {integrity: sha512-Gn5yjlZGLRZWarLWqdQzv0wMqyBNIdq1QLi48F1oY5Lo9kiohuf7BPQWtWxeNVS2NgJ1+nb/DzK1JduYC4AWOA==}
+    cpu: [arm64]
     os: [linux]
 
   '@turbo/windows-64@2.8.20':
@@ -4968,6 +4976,9 @@ snapshots:
   '@turbo/linux-64@2.8.20':
     optional: true
 
+  '@turbo/linux-arm64@2.8.20':
+    optional: true
+
   '@turbo/windows-64@2.8.20':
     optional: true
 
@@ -7706,6 +7717,7 @@ snapshots:
       '@turbo/darwin-64': 2.8.20
       '@turbo/darwin-arm64': 2.8.20
       '@turbo/linux-64': 2.8.20
+      '@turbo/linux-arm64': 2.8.20
       '@turbo/windows-64': 2.8.20
       '@turbo/windows-arm64': 2.8.20
 
