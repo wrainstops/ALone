@@ -44,22 +44,21 @@ function generateQuickSortQueue(i = 0, j = numberList.length - 1) {
   let end = j
   const p = numberList[i]
   while (i < j) {
-    if (numberList[j] > p) {
+    if (numberList[j] >= p) {
       j--
     } else {
       if (numberList[i] <= p) {
         i++
       } else {
-        let copyI = i, copyJ = j;
-        [numberList[copyI], numberList[copyJ]] = [
-          numberList[copyJ],
-          numberList[copyI],
+        ;[numberList[i], numberList[j]] = [
+          numberList[j],
+          numberList[i],
         ]
         j--
       }
     }
-  };
-  [numberList[start], numberList[i]] = [
+  }
+  ;[numberList[start], numberList[i]] = [
     numberList[i],
     numberList[start],
   ]
