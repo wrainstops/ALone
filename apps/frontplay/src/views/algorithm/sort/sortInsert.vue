@@ -1,6 +1,6 @@
 <template>
   <div class="mt-4">
-    <n-h3>选择排序</n-h3>
+    <n-h3>插入排序</n-h3>
     <n-equation :value="equation" />
     <Widget ref="widgetRef" @set-number-string="setNumberString" @run="runSort" @stop="stopSort" />
     <div class="h-60 w-full mt-4 flex gap-4 overflow-auto">
@@ -45,38 +45,37 @@ setNumberList(numberString.value)
 
 const queue = ref<KeyValue[]>([])
 const runningIndex = ref(0) // 正在运行第几步
-const sortIndexs = ref<number[]>([]) // 遍历头索引和当前遍历到的索引
-const currentMinIndex = ref<number>(-1) // 当前最小值的索引
-const sortedIndexs = ref<number[]>([]) // 已排序的索引
+const sortIndexs = ref<number[]>([]) // 要插入的索引和当前遍历到的索引
+const sortedMaxIndex = ref<number>(0) // 已排序的最大索引，小于等于此值视为已排序
 
-// 生成选择排序的操作队列
-function generateSelectSortQueue() {
+// 生成插入排序的操作队列
+function generateInsertSortQueue() {
   queue.value = []
   const len = numberList.value.length
-  for (let i = 0; i < len; i++) {
-    let minIndex = i
-    for (let j = i; j < len; j++) {
-      const fn = () => {
-        const j_v = numberList.value[j]!.value
-        const min_v = numberList.value[minIndex]!.value
-        if (j_v < min_v) {
-          minIndex = j
-          currentMinIndex.value = j
-        }
-        if (j === len - 1) {
-          ;[numberList.value[i], numberList.value[minIndex]] = [
-            numberList.value[minIndex]!,
-            numberList.value[i]!,
+  for (let i = 1; i < len; i++) {
+    let k = numberList.value[i]!.value
+    for (let j = i - 1; j >= 0; j--) {
+      if (numberList.value[j]!.value > k) {
+        /**
+         * 原本是j+1处放j的值，j放k
+         * => numberList.value[j + 1]!.value = numberList.value[j]!.value; numberList.value[j]!.value = k
+         * 但是要实现动画，就不能单纯交换值，需要交换两个numberList中的对象
+         * 所以变通一下，交换j+1和j的对象，因为执行过fn后，j+1处的值就是k
+         * 解释：k = arr[i]；第一次执行fn时，j+1处肯定是k；后续执行时，将k的值赋值给arr[j]，这样j--后再进到fn，j+1处还是k
+         */
+        const fn = () => {
+          ;[numberList.value[j + 1], numberList.value[j]] = [
+            numberList.value[j]!,
+            numberList.value[j + 1]!,
           ]
-          sortedIndexs.value.push(i)
-          currentMinIndex.value = -1
+          sortedMaxIndex.value = i
         }
+        queue.value.push({ fn, index1: i, index2: j })
       }
-      queue.value.push({ fn, index1: i, index2: j })
     }
   }
 }
-generateSelectSortQueue()
+generateInsertSortQueue()
 
 let interval: number | undefined = void 0
 async function runSort(mark: boolean = true) {
@@ -112,11 +111,11 @@ function finishSort() {
 // 排序停止
 function stopSort() {
   queue.value = []
-  sortedIndexs.value = []
+  sortedMaxIndex.value = 0
   finishSort()
   runningIndex.value = 0
   setNumberList(numberString.value)
-  generateSelectSortQueue()
+  generateInsertSortQueue()
 }
 
 // 设置一组排序的数字
@@ -128,11 +127,9 @@ function setNumberString(str: string) {
 }
 
 function getNumberBgColor(index: number): string {
-  if (currentMinIndex.value === index) {
-    return 'var(--warning-color)'
-  } else if (sortIndexs.value.includes(index)) {
+  if (sortIndexs.value.includes(index)) {
     return 'var(--error-color)'
-  } else if (sortedIndexs.value.includes(index)) {
+  } else if (index <= sortedMaxIndex.value) {
     return 'var(--main-color)'
   } else {
     return 'var(--light-color)'
