@@ -15,6 +15,7 @@
         </div>
       </TransitionGroup>
     </div>
+    <Description :content="QuickMd" />
     <Code :code="QuickSourceCode" />
   </div>
 </template>
@@ -23,8 +24,9 @@
 import { ref, onBeforeUnmount } from 'vue'
 import { NH3, NEquation, useMessage } from 'naive-ui'
 import Widget from './widget.vue'
+import Description from './description.vue'
 import Code from './code.vue'
-import { QuickSourceCode } from '@/constants/algorithm'
+import { QuickMd, QuickSourceCode } from '@/constants/algorithm'
 import { numberStringToList } from '@/utils/sort'
 import type { LabelValueOption, KeyValue } from '#/index'
 
