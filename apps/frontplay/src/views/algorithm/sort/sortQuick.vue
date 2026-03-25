@@ -34,6 +34,12 @@ const equation = '\\displaystyle时间复杂度: O(nlogn); 空间复杂度: O(lo
 const widgetRef = ref<typeof Widget>()
 const numberString = ref<string>('2,4,3,9,0,8,1,7,6,5')
 const numberList = ref<LabelValueOption>([])
+/**
+ * numberListCopy
+ * 拷贝一份数组，在generateQuickSortQueue时使用
+ * 因为在递归里，如果不交换数字，会无限递归，导致栈溢出
+ * 所以做一份拷贝，在递归时执行这个拷贝数组的交换操作，把对原数组执行的相同的操作加入执行队列
+ */
 const numberListCopy = ref<LabelValueOption>([])
 
 // 字符串分隔为数组
