@@ -14,11 +14,19 @@
         </div> -->
         <% if (theme.footer.ICP.enable) { %>
         <div>
-            备案号：
             <% if (theme.footer.ICP.link) { %>
             <a href="<%- url_for(theme.footer.ICP.link) %>"><%= theme.footer.ICP.code %></a>
             <% } else { %>
             <%= theme.footer.ICP.code %>
+            <% } %>
+        </div>
+        <% } %>
+        <% if (theme.footer.POLICE.enable) { %>
+        <div>
+            <% if (theme.footer.POLICE.link) { %>
+            <a href="<%- url_for(theme.footer.POLICE.link) %>"><%= theme.footer.POLICE.code %></a>
+            <% } else { %>
+            <%= theme.footer.POLICE.code %>
             <% } %>
         </div>
         <% } %>

@@ -67,9 +67,13 @@ footer:
   since: 2023
   # Customize the server domain name ICP
   ICP:
-    enable: false
-    code:
-    link:
+    enable: true
+    code: 鲁ICP备2026009727号-1
+    link: https://beian.miit.gov.cn/
+  POLICE:
+    enable: true
+    code: 沪公网安备31011502405415号
+    link: https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31011502405415
 
 # Polyfill
 # https://polyfill.io
