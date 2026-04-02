@@ -128,6 +128,9 @@ importers:
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3))
+      s-rag:
+        specifier: file:./s-rag
+        version: file:apps/frontplay/s-rag
       sass:
         specifier: ^1.98.0
         version: 1.98.0
@@ -3509,6 +3512,9 @@ packages:
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
+
+  s-rag@file:apps/frontplay/s-rag:
+    resolution: {directory: apps/frontplay/s-rag, type: directory}
 
   safe-buffer@5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}
@@ -7469,6 +7475,8 @@ snapshots:
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
+
+  s-rag@file:apps/frontplay/s-rag: {}
 
   safe-buffer@5.1.2: {}
 
