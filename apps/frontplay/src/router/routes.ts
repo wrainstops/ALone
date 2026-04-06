@@ -17,6 +17,17 @@ export const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
+    path: '/ai',
+    component: () => import('@/layout/index.vue'),
+    redirect: '/ai/rag',
+    children: [
+      {
+        path: 'rag',
+        component: () => import('@/views/ai/rag/index.vue'),
+      },
+    ],
+  },
+  {
     path: '/404',
     name: '404',
     component: () => import('@/views/error/404.vue'),

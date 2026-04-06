@@ -28,7 +28,12 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { NLayout, NLayoutSider, NMenu, NBackTop, type MenuOption } from 'naive-ui'
-import { LibraryOutline, AnalyticsOutline } from '@vicons/ionicons5'
+import {
+  LibraryOutline,
+  AnalyticsOutline,
+  AccessibilityOutline,
+  ServerOutline,
+} from '@vicons/ionicons5'
 import { renderRouterLink, renderIcon } from '@/utils'
 
 const route = useRoute()
@@ -45,6 +50,18 @@ const menuOptions: MenuOption[] = [
         label: renderRouterLink('/algorithm/sort', '排序'),
         key: '/algorithm/sort',
         icon: renderIcon(AnalyticsOutline),
+      },
+    ],
+  },
+  {
+    label: 'AI',
+    key: '/ai',
+    icon: renderIcon(AccessibilityOutline),
+    children: [
+      {
+        label: renderRouterLink('/ai/rag', 'RAG'),
+        key: '/ai/rag',
+        icon: renderIcon(ServerOutline),
       },
     ],
   },
