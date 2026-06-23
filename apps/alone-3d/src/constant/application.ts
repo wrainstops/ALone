@@ -62,6 +62,14 @@ export const Controls = {
   walkVelocity: 5,
   // 人物朝向旋转速度
   rotateSpeed: 0.05,
+  // 垂直速度（用于跳跃和下落）
+  verticalVelocity: 0,
+  // 重力加速度
+  gravity: 20,
+  // 跳跃力
+  jumpForce: 12,
+  // 最大下落速度
+  maxFallSpeed: 15,
 }
 
 // floor参数

@@ -60,7 +60,7 @@ export default class Application {
   private oldPosition: THREE.Vector3 = new THREE.Vector3()
 
   // isPlayerOnFloor 是否在地面上
-  private isPlayerOnFloor: boolean = false
+  private isPlayerOnFloor: boolean = true
 
   constructor(options: ApplicationOptions) {
     this.canvas = options.canvas
@@ -228,27 +228,24 @@ export default class Application {
   }
 
   updateCharacter(delta: number) {
-    const { fadeDuration: fade, key, up, ease, rotate, position } = Controls
+    const { fadeDuration: fade, key, up, ease, rotate, position, gravity, maxFallSpeed } = Controls
     const { size } = Floor
 
-    // 不在地面上 自由落体
-    if (!this.isPlayerOnFloor && position.y > 0) {
-      position.y -= delta
-      this.camera.position.y -= delta
-    }
+    // 保存当前位置用于碰撞检测回滚
+    this.oldPosition.copy(position)
 
     // 获取当前水平旋转角度(弧度)
     const azimuth = this.orbitControls.getAzimuthalAngle()
 
-    // 运动标记
+    // 运动标记（跳跃时也允许移动）
     const active = key[0] === 0 && key[1] === 0 ? false : true
     // 动画类型
     const play = active ? 'Walk' : 'Idle'
 
     // 动画改变 过渡
-    if (Controls.current !== play) {
-      const current = this.character.actions![play]
-      const old = this.character.actions![Controls.current]
+    if (Controls.current !== play && this.character && this.character.actions) {
+      const current = this.character.actions[play]
+      const old = this.character.actions[Controls.current]
       Controls.current = play
 
       this.setWeight(current, 1.0)
@@ -256,8 +253,8 @@ export default class Application {
       current.reset().fadeIn(fade).play()
     }
 
-    // 移动
-    if (Controls.current === 'Walk') {
+    // 水平移动（无论是否在地面上都允许）
+    if (active) {
       // 速度
       const velocity = Controls.velocity
 
@@ -275,20 +272,47 @@ export default class Application {
       // 将ease向量和position向量相加, 得到当前位置
       position.add(ease)
 
-      // 碰撞检测
-      this.checkCollision(ease, position, size)
-
       // 旋转, 使人物朝向行走方向
       this.group.quaternion.rotateTowards(rotate, Controls.rotateSpeed)
-
-      this.orbitControls.target.copy(position).add({ x: 0, y: 1, z: 0 })
-
-      // 保存旧位置
-      this.oldPosition.copy(position)
+    } else {
+      ease.set(0, 0, 0)
     }
+
+    // 不在地面上 应用重力
+    if (!this.isPlayerOnFloor) {
+      // 应用重力
+      Controls.verticalVelocity -= gravity * delta
+      // 限制最大下落速度
+      Controls.verticalVelocity = Math.max(Controls.verticalVelocity, -maxFallSpeed)
+
+      // 更新垂直位置
+      position.y += Controls.verticalVelocity * delta
+
+      // 防止人物穿透地面
+      if (position.y < 0) {
+        position.y = 0
+        Controls.verticalVelocity = 0
+        this.isPlayerOnFloor = true
+      }
+    } else {
+      // 在地面上时重置垂直速度
+      Controls.verticalVelocity = 0
+    }
+
+    // 碰撞检测（包含水平和垂直移动）
+    this.checkCollision(ease, position, size, delta)
+
+    // 更新轨道控制器目标
+    this.orbitControls.target.copy(position).add({ x: 0, y: 1, z: 0 })
+
     // 把position赋值给group.position
     this.group.position.copy(position)
     this.followGroup.position.copy(position)
+
+    // 相机跟随人物移动（保持固定相对位置）
+    const cameraOffset = new THREE.Vector3(0, 3, -10)
+    cameraOffset.applyQuaternion(this.group.quaternion)
+    this.camera.position.copy(position).add(cameraOffset)
 
     if (this.character?.mixer) this.character?.mixer.update(delta)
 
@@ -296,30 +320,49 @@ export default class Application {
   }
 
   // 碰撞检测
-  checkCollision(ease: THREE.Vector3, position: THREE.Vector3, size: number) {
+  checkCollision(ease: THREE.Vector3, position: THREE.Vector3, size: number, delta: number) {
     // 边界
     if (Math.abs(position['x']) > size / 2 || Math.abs(position['z']) > size / 2) {
       position.copy(this.oldPosition)
       return
     }
 
+    // 检查 character 是否已初始化
+    if (!this.character || !this.character.chCapsule) {
+      return
+    }
+
+    // 创建包含垂直速度的完整移动向量
+    const fullMove = new THREE.Vector3(ease.x, Controls.verticalVelocity * delta, ease.z)
+
     // 胶囊体碰撞
-    this.character.chCapsule?.translate(ease)
-    const res = this.worldOctree.capsuleIntersect(this.character.chCapsule!)
-    this.isPlayerOnFloor = false
+    this.character.chCapsule.translate(fullMove)
+    const res = this.worldOctree.capsuleIntersect(this.character.chCapsule)
 
     if (res) {
+      // 只有碰到地面（法线向上）才认为在地面上
       this.isPlayerOnFloor = res.normal.y > 0
+
+      // 如果碰到地面或障碍物上方，重置垂直速度
+      if (res.normal.y > 0) {
+        Controls.verticalVelocity = 0
+      } else if (res.normal.y < 0) {
+        // 如果碰到天花板，反向垂直速度
+        Controls.verticalVelocity = -Math.abs(Controls.verticalVelocity) * 0.5
+      }
+
       if (res.depth > 0.1) {
         position.copy(this.oldPosition)
-        this.character.chCapsule?.translate(ease.negate())
+        this.character.chCapsule.translate(fullMove.negate())
       } else {
         position.y += res.depth
-        ease.y += res.depth
-        this.camera.position.add(ease)
+        Controls.verticalVelocity += res.depth / delta
       }
     } else {
-      this.camera.position.add(ease)
+      // 如果没有碰撞，且有向下的垂直速度，则不在地面上
+      if (Controls.verticalVelocity < 0) {
+        this.isPlayerOnFloor = false
+      }
     }
   }
 
@@ -361,9 +404,10 @@ export default class Application {
         key[1] = 1
         break
       case 'Space':
-        if (this.isPlayerOnFloor || position.y <= 0) {
-          position.y += 3
-          this.camera.position.y += 3
+        if (this.isPlayerOnFloor) {
+          // 应用跳跃力
+          Controls.verticalVelocity = Controls.jumpForce
+          this.isPlayerOnFloor = false
         }
         break
       case 'KeyF':
